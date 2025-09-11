@@ -1,0 +1,185 @@
+
+
+<nav class="bg-[rgba(29,53,87,1) border-gray-200 dark:bg-gray-900">
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Mobility PLUS</span>
+      </a>
+      <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
+          <span class="sr-only">Open main menu</span>
+          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+          </svg>
+      </button>
+      <!-- <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+        <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+          <li>
+            <a [routerLink]="['/inicio']" class="block py-2 px-3 text-orange-100 rounded transition-all duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:shadow-lg hover:translate-y-[-5px] hover:rounded-full">Home</a>
+          </li>
+          <li>
+            <a [routerLink]="['/registro-comprador']" class="block py-2 px-3 text-orange-100 rounded transition-all duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:shadow-lg hover:translate-y-[-5px] hover:rounded-full">Cliente</a>
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-3 text-orange-100 rounded transition-all duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:shadow-lg hover:translate-y-[-5px] hover:rounded-full">Repartidor</a>
+          </li>
+          <li>
+            <a [routerLink]="['/registro-tienda']"class="block py-2 px-3 text-orange-100 rounded transition-all duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:shadow-lg hover:translate-y-[-5px] hover:rounded-full">Tienda</a>
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-3 text-orange-100 rounded transition-all duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:shadow-lg hover:translate-y-[-5px] hover:rounded-full">Contactos</a>
+          </li>
+        </ul>
+      </div> -->
+    </div>
+  </nav>
+
+
+<div class="flex flex-col lg:flex-row min-h-screen bg-yellow-50">
+    <!-- Sección Izquierda -->
+    <div class="lg:w-1/2 p-8 flex flex-col mt-20">
+        <h1 class="text-4xl font-bold mb-4">Encuentra al profesional de la salud que estás buscando</h1>
+        <p class="text-lg">Compra en tus tiendas favoritas pide y te llega</p>
+
+    </div>
+    
+
+    <!-- Sección Derecha -->
+    <div class="lg:w-1/2 p-8 flex flex-col justify-center">
+        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">
+                    Registrate como comprador
+                </h1>
+                <form class="space-y-4 md:space-y-6" action="#">
+                    <div>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+                        <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="">
+                    </div>
+                  <div>
+                    <label for="direccion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tu dirección</label>
+                    <input type="text" name="direccion" id="direccion" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Ej:tu dirección pasaje 123" required="">
+                </div>                
+                    <div>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
+                        <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirmar contraseña</label>
+                        <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                    </div>
+
+                    <div>
+                        <label for="phone-number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Número de teléfono</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+                                +56
+                            </span>
+                            <input type="tel" name="phone-number" id="phone-number" placeholder="9XXXXXXXX" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" pattern="[0-9]{9}" required>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 mb-4 sm:grid-cols-2">
+                      <div>
+                        <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                        <input type="text" name="nombre" id="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Escribe tu nombre" required="">
+                    </div>
+                    <div>
+                        <label for="apellido" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido</label>
+                        <input type="text" name="apellido" id="apellido" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Escribe tu apellido" required="">
+                    </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" aria-describedby="terms" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="font-light text-gray-500 dark:text-gray-300">I accept the <a class="font-medium text-primary-600 hover:underline dark:text-primary-500" href="#">Terms and Conditions</a></label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full text-white bg-red-700 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Crea tu cuenta</button>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                        Already have an account? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="bg-blue-600 py-16">
+    <div class="max-w-7xl mx-auto px-8">
+      <h2 class="text-3xl font-bold text-gray-100 mb-8">¿Por qué unirse a DeliveRed?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Card 1 -->
+        <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+          <div class="mb-4 text-red-600 flex justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>                         
+          </div>
+          <h3 class="text-xl font-semibold mb-4">Aumenta tu visibilidad</h3>
+          <p class="text-gray-600">Sigue a las tiendas que más te gusten, siguelas y compra sus productos.</p>
+        </div>
+        
+        <!-- Card 2 -->
+        <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+          <div class="mb-4 text-red-600 flex justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+            </svg>                 
+          </div>
+          <h3 class="text-xl font-semibold mb-4">Seguimiento de Pedido</h3>
+          <p class="text-gray-600">Sigue los pedidos que has comprado en tiempo real hasta que llegue hasta tu hogar.</p>
+        </div>
+        
+        <!-- Card 3 -->
+        <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+          <div class="mb-4 text-red-600 flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+              </svg>          
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-center">Deliverys</h3>
+          <p class="text-gray-600 text-center">Revisa tus pedidos y comunicate de forma directa con los repartidores</p>
+      </div>
+  
+      </div>
+    </div>
+  </section>
+
+<!-- Footer -->
+
+<footer class="p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
+    <div class="mx-auto max-w-screen-xl text-center">
+        <a href="#" class="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white">
+            MobilityPLus
+        </a>
+        <p class="my-6 text-gray-500 dark:text-gray-400">Open-source library of over 400+ web components and interactive elements built for better web.</p>
+        <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6">Premium</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6 ">Campaigns</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6">Blog</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6">Affiliate Program</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6">FAQs</a>
+            </li>
+            <li>
+                <a href="#" class="mr-4 hover:underline md:mr-6">Contact</a>
+            </li>
+        </ul>
+        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2021-2022 <a href="#" class="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
+    </div>
+  </footer>
