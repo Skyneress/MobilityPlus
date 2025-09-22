@@ -1,19 +1,31 @@
-import { Injectable, Inject } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { getFirestore } from "firebase/firestore"; // Si vas a usar Firestore
-import { getAuth } from "firebase/auth";     // Si vas a usar Autenticación
-
+import { Injectable } from '@angular/core';
+import { 
+  Firestore, 
+  collection, 
+  addDoc,
+  CollectionReference,
+  DocumentData 
+} from '@angular/fire/firestore';
+import { Usuario } from '../models/usuario.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UsuarioServiceTs {
+export class UsuarioService {
+  private usuariosCollection: CollectionReference<DocumentData>;
 
-  constructor(@Inject(AngularFirestore) private firestore: AngularFirestore) {}
-
-  // Este método guarda un nuevo usuario en la colección 'usuarios'
-  crearUsuario(usuario: Usuario) {
-    return this.firestore.collection('usuarios').add(usuario);
+  constructor(private firestore: Firestore) {
+    this.usuariosCollection = collection(this.firestore, 'usuarios');
   }
-  
+
+  async crearUsuario(usuario: Usuario): Promise<string> {
+    try {
+      const docRef = await addDoc(this.usuariosCollection, usuario);
+      console.log("Usuario creado exitosamente con ID:", docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
+      throw error; // Propaga el error para manejarlo en el componente
+    }
+  }
 }
