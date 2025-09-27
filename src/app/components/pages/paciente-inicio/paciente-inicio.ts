@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-import { User } from '@angular/fire/auth'; // Importa el tipo User de Firebase
 
 @Component({
   selector: 'app-paciente-inicio',
@@ -22,26 +21,23 @@ export class PacienteInicio implements OnInit {
 
   async ngOnInit() {
     await this.loadUserData();
-    
   }
 
   private async loadUserData() {
     try {
-      // Cambio aquí: usar tipo any o el tipo específico que retorna tu AuthService
-      const currentUser: any = this.authService.getCurrentUser();
-      
-      // Verificación más estricta
+      const currentUser: any = await this.authService.getCurrentUser(); // 
+
       if (currentUser && currentUser.uid) {
         // Obtener datos adicionales de Firestore
         this.userData = await this.authService.getUserData(currentUser.uid);
         console.log('Datos del usuario:', this.userData);
       } else {
         console.warn('No hay usuario autenticado');
-        this.router.navigate(['/']);
+        this.router.navigate(['/inicio-sesion']); // 
       }
     } catch (error) {
       console.error('Error cargando datos:', error);
-      this.router.navigate(['/']);
+      this.router.navigate(['/inicio-sesion']);
     } finally {
       this.isLoading = false;
     }
@@ -49,7 +45,7 @@ export class PacienteInicio implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/inicio-sesion']); // 
   }
 
   // Métodos para las acciones
@@ -64,5 +60,4 @@ export class PacienteInicio implements OnInit {
   verHistorial() {
     this.router.navigate(['/historial']);
   }
-  
 }

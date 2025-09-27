@@ -12,7 +12,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class RegistroPaciente {
 
-  registerForm!: FormGroup; // Inicializar directamente o usar !
+  /* registerForm!: FormGroup; // Inicializar directamente o usar !
   isLoading = false; // Corregido nombre de propiedad
   errorMessage = '';
 
@@ -75,5 +75,5 @@ export class RegistroPaciente {
     } else {
         return `+56${numeroLimpio}`; // Si no empieza con 9, añade el prefijo
     }
-  }
+  } */
 }

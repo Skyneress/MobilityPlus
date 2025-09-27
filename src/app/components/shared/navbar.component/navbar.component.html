@@ -1,31 +1,100 @@
 <nav class="bg-[rgb(26,115,232)] shadow-lg p-4 sticky top-0 z-50">
   <div class="max-w-screen-xl mx-auto flex justify-between items-center">
-    <a (click)="setView('inicio')" class="cursor-pointer flex items-center space-x-3 rtl:space-x-reverse">
+    <!-- Logo -->
+    <a routerLink="/inicio" class="cursor-pointer flex items-center space-x-3 rtl:space-x-reverse">
       <h1 class="text-[rgb(173,240,199)]">MobilityPLUS</h1>
     </a>
-    <nav>
+
+    <!-- Botón Hamburguesa (solo móvil) -->
+    <button
+      class="lg:hidden text-white focus:outline-none"
+      (click)="isMenuOpen = !isMenuOpen"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Menú Desktop -->
+    <nav class="hidden lg:flex items-center space-x-4">
       <ul class="font-medium flex space-x-4">
-        <li>
-          <button (click)="setView('inicio')" class="rounded-full px-4 py-2 transition-all duration-300 font-semibold">
-            Home
-          </button>
-        </li>
-        <li>
-          <button (click)="setView('registro-paciente')" class="rounded-full px-4 py-2 transition-all duration-300 font-semibold">
-            Paciente
-          </button>
-        </li>
-        <li>
-          <button (click)="setView('registro-profesional')" class="rounded-full px-4 py-2 transition-all duration-300 font-semibold">
-            Profesional
-          </button>
-        </li>
-        <li>
-          <button (click)="setView('contactos')" class="rounded-full px-4 py-2 transition-all duration-300 font-semibold">
-            Contactos
-          </button>
-        </li>
+        <li><a routerLink="/" class="rounded-full px-4 py-2 font-semibold">Home</a></li>
+        <li><a routerLink="/registro-paciente" class="rounded-full px-4 py-2 font-semibold">Paciente</a></li>
+        <li><a routerLink="/registro-salud" class="rounded-full px-4 py-2 font-semibold">Profesional</a></li>
+        <li><a routerLink="/contactos" class="rounded-full px-4 py-2 font-semibold">Contactos</a></li>
       </ul>
+
+      <!-- 🔑 Zona de autenticación -->
+      <div class="ml-6">
+        <ng-container *ngIf="authService.usuario$ | async as user; else guestLinks">
+          <span class="text-white mr-3">Hola, {{ user.email }}</span>
+          <button
+            (click)="logout()"
+            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full"
+          >
+            Cerrar sesión
+          </button>
+        </ng-container>
+
+        <ng-template #guestLinks>
+          <a
+            routerLink="/login"
+            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full"
+          >
+            Iniciar sesión
+          </a>
+        </ng-template>
+      </div>
     </nav>
+  </div>
+
+  <!-- Menú Mobile -->
+  <div *ngIf="isMenuOpen" class="lg:hidden mt-4">
+    <ul class="flex flex-col space-y-2 font-medium">
+      <li>
+        <a routerLink="/inicio" (click)="isMenuOpen=false" class="w-full text-left px-4 py-2 font-semibold">
+          Home
+        </a>
+      </li>
+      <li>
+        <a routerLink="/registro-paciente" (click)="isMenuOpen=false" class="w-full text-left px-4 py-2 font-semibold">
+          Paciente
+        </a>
+      </li>
+      <li>
+        <a routerLink="/registro-salud" (click)="isMenuOpen=false" class="w-full text-left px-4 py-2 font-semibold">
+          Profesional
+        </a>
+      </li>
+      <li>
+        <a routerLink="/contactos" (click)="isMenuOpen=false" class="w-full text-left px-4 py-2 font-semibold">
+          Contactos
+        </a>
+      </li>
+
+      <!-- 🔑 Zona de autenticación en menú móvil -->
+      <li *ngIf="authService.usuario$ | async as user; else guestMobile">
+        <span class="px-4 py-2 text-white">Hola, {{ user.email }}</span>
+        <button
+          (click)="logout(); isMenuOpen=false"
+          class="w-full text-left px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+        >
+          Cerrar sesión
+        </button>
+      </li>
+
+      <ng-template #guestMobile>
+        <li>
+          <a
+            routerLink="/login"
+            (click)="isMenuOpen=false"
+            class="w-full text-left px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
+          >
+            Iniciar sesión
+          </a>
+        </li>
+      </ng-template>
+    </ul>
   </div>
 </nav>

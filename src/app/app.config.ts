@@ -6,6 +6,8 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { routes } from './app.routes';
 
+
+
 // Configuración local (elimina environment.firebaseConfig si no lo usas)
 const firebaseConfig = {
   apiKey: "AIzaSyD3fyepMAjW9N9Fv7hp0wEB-WuKanZdweM",

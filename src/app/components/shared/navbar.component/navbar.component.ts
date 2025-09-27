@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
+
+import { AuthService } from 'src/app/services/auth.service';
+
 @Component({  // ← Asegúrate de tener este decorador
   selector: 'app-navbar',
   standalone: true,
@@ -16,5 +19,13 @@ export class NavbarComponent {  // ← Cambia a NavbarComponent
     this.currentView = viewName;
     // Opcional: navegar con router si prefieres
     // this.router.navigate([viewName]);
+  }
+
+  isMenuOpen = false;
+
+  constructor(public authService: AuthService) {}
+
+  logout() {
+    this.authService.logout();
   }
 }

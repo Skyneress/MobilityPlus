@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterModule, } from '@angular/router'; // <- Router y RouterModule vienen de @angular/router
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavbarComponent } from "../../shared/navbar.component/navbar.component";
-import { InicioSesion } from '../inicio-sesion/inicio-sesion';
 
 @Component({
-  selector: 'app-inicio',
+  selector: 'app-registro-salud',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, RouterModule ],
-  templateUrl: './inicio.html',
-  styleUrls: ['./inicio.css']
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  templateUrl: './registro-salud.html',
+  styleUrls: ['./registro-salud.css']
 })
-export class Inicio {
+export class RegistroSalud {
   registerForm: FormGroup;
   isLoading: boolean = false;
   errorMessage: string = '';
@@ -31,79 +30,71 @@ export class Inicio {
       nombre: ['', [Validators.required]],
       apellido: ['', [Validators.required]],
       direccion: ['', [Validators.required]],
-      acceptTerms: [false, [Validators.requiredTrue]]
+      especialidad: ['', [Validators.required]], // 👈 Campo extra para profesionales
+      aceptoTerminos: [false, [Validators.requiredTrue]]
     }, { validators: this.passwordMatchValidator });
   }
 
-  // VALIDADOR CORREGIDO - Versión simplificada y funcional
+  // 🔐 Validador de coincidencia de contraseñas
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
+    if (!password || !confirmPassword) return null;
 
-    if (!password || !confirmPassword) {
-      return null;
-    }
-
-    // Limpia errores previos en confirmPassword
     if (confirmPassword.errors && confirmPassword.errors['mismatch']) {
       const errors = { ...confirmPassword.errors };
       delete errors['mismatch'];
       confirmPassword.setErrors(Object.keys(errors).length ? errors : null);
     }
 
-    // Si las contraseñas coinciden, retorna null (sin errores)
     if (password.value === confirmPassword.value) {
       return null;
     }
 
-    // Si no coinciden, aplica el error al control de confirmPassword
     confirmPassword.setErrors({ ...confirmPassword.errors, mismatch: true });
     return { mismatch: true };
   }
 
+  // 🚀 Método de envío del formulario
   async onSubmit() {
-    console.log('Formulario válido:', this.registerForm.valid);
-    console.log('Errores del formulario:', this.registerForm.errors);
-    console.log('Errores de confirmPassword:', this.registerForm.get('confirmPassword')?.errors);
-
     if (this.registerForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
 
       try {
-        const { email, password, telefono, nombre, apellido, direccion } = this.registerForm.value;
-        
-        console.log('📤 Intentando crear usuario:', email);
-        
-        const result = await this.authService.registerUser({
+        const { email, password, telefono, nombre, apellido, direccion, especialidad } = this.registerForm.value;
+
+        console.log('📤 Creando profesional de la salud:', email);
+
+        await this.authService.registerUser({
           email,
           password,
           telefono: '+56' + telefono,
           nombre,
           apellido,
           direccion,
-          rol: 'paciente'
+          especialidad,
+          rol: 'profesional',
+          collection: 'users_profesionales' // Debería guardar en la colección de profesionales
         });
 
-        console.log('✅ Usuario creado exitosamente');
-        window.alert('🎉 ¡Usuario creado exitosamente!');
-        
-        this.router.navigate(['/paciente-inicio']);
-        
+        window.alert('✅ Profesional de la salud creado exitosamente');
+        this.router.navigate(['/profesional-inicio']);
+
       } catch (error: any) {
-        console.error('❌ Error al crear usuario:', error);
+        console.error('❌ Error al crear profesional de la salud:', error);
         this.errorMessage = error.message || 'Error desconocido';
         window.alert('❌ Error: ' + this.errorMessage);
       } finally {
         this.isLoading = false;
       }
     } else {
-      console.log('Formulario inválido - Mostrando alerta');
       window.alert('⚠️ Por favor, completa todos los campos correctamente');
       this.markFormGroupTouched(this.registerForm);
     }
   }
 
+  // 🔄 Marca todos los campos como "tocados"
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);

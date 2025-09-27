@@ -1,23 +1,29 @@
 import { Routes } from '@angular/router';
 
-import { RegistroPaciente } from './components/pages/registro-paciente/registro-paciente';
 import { Inicio } from './components/pages/inicio/inicio';
 import { PacienteInicio } from './components/pages/paciente-inicio/paciente-inicio';
+import { RegistroSalud } from './components/pages/registro-salud/registro-salud';
+import { InicioSesion } from './components/pages/inicio-sesion/inicio-sesion';
+import { RegistroPaciente } from './components/pages/registro-paciente/registro-paciente';
+
+// 👇 Usa el nombre correcto del layout y la ruta correcta
+import { GeneralLayoutComponent } from './layouts/general/general';
 
 export const routes: Routes = [
-  { 
-    path: '', 
-    component: Inicio
+  {
+    path: '',
+    component: GeneralLayoutComponent,
+    children: [
+      { path: '', component: Inicio },
+      { path: 'registro-paciente', component: RegistroPaciente },
+      { path: 'registro-salud', component: RegistroSalud },
+      { path: 'inicio-sesion', component: InicioSesion },
+    ],
   },
-  { 
-    path: 'paciente-inicio', 
-    component: PacienteInicio 
-  },
-  { 
-    path: 'registro-paciente', 
-    component: RegistroPaciente
-  },
-  { path: '', component: PacienteInicio }, // Esta es la página de inicio con el formulario
-  // Otras rutas de tu aplicación
-  { path: 'paciente-inicio', component: PacienteInicio } // un ejemplo
+
+  // Inicio del paciente (dashboard)
+  { path: 'paciente-inicio', component: PacienteInicio },
+
+  // Wildcard: cualquier ruta inexistente → redirigir al inicio
+  { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

@@ -1,0 +1,47 @@
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h2>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <!-- Email -->
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+                <input type="email" id="email" formControlName="email" placeholder="nombre@ejemplo.com"
+                    class="mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300" />
+                <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                    class="text-red-500 text-sm mt-1">
+                    <span *ngIf="loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched">
+                        El email es requerido
+                    </span>
+                    <span *ngIf="loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched">
+                        Email inválido
+                    </span>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <input type="password" id="password" formControlName="password" placeholder="••••••••"
+                    class="mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300" />
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                    class="text-red-500 text-sm mt-1">
+                    <span *ngIf="loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched">
+                        La contraseña es requerida
+                    </span>
+                </div>
+            </div>
+
+            <!-- Botón -->
+            <button type="submit" [disabled]="isLoading"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
+            </button>
+        </form>
+
+        <p class="text-sm text-gray-500 text-center mt-4">
+            ¿No tienes cuenta?
+            <a routerLink="/registro-paciente" class="text-blue-600 hover:underline">Regístrate aquí</a>
+        </p>
+    </div>
+</div>

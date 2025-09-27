@@ -1,0 +1,161 @@
+<app-navbar></app-navbar>
+
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+  <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col justify-center mt-8 lg:mt-0">
+    <div class="w-full bg-white rounded-lg shadow-md md:mt-0 sm:max-w-md xl:p-0">
+      <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
+          Regístrate como profesional de la salud
+        </h1>
+
+        <form class="space-y-4 md:space-y-6" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Correo electrónico</label>
+            <input type="email" formControlName="email" id="email" placeholder="nombre@ejemplo.com"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-red-500 text-sm mt-1">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">El email es requerido</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Email inválido</span>
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div>
+            <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Contraseña</label>
+            <input type="password" formControlName="password" id="password" placeholder="••••••••"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-red-500 text-sm mt-1">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+            </div>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div>
+            <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900">Confirmar contraseña</label>
+            <input type="password" formControlName="confirmPassword" id="confirm-password" placeholder="••••••••"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <div *ngIf="registerForm.get('confirmPassword')?.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" class="text-red-500 text-sm mt-1">
+              Las contraseñas no coinciden
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div>
+            <label for="telefono" class="block mb-2 text-sm font-medium text-gray-900">Número de teléfono</label>
+            <div class="flex">
+              <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">+56</span>
+              <input type="tel" formControlName="telefono" id="telefono" placeholder="912345678"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                pattern="[0-9]{9}">
+            </div>
+            <div *ngIf="registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched" class="text-red-500 text-sm mt-1">
+              <span *ngIf="registerForm.get('telefono')?.errors?.['required']">El teléfono es requerido</span>
+              <span *ngIf="registerForm.get('telefono')?.errors?.['pattern']">Formato: 9XXXXXXXX (9 dígitos)</span>
+            </div>
+          </div>
+
+          <!-- Nombre y Apellido -->
+          <div class="grid gap-4 mb-4 sm:grid-cols-2">
+            <div>
+              <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
+              <input type="text" formControlName="nombre" id="nombre" placeholder="Escribe tu nombre"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              <div *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched" class="text-red-500 text-sm mt-1">
+                El nombre es requerido
+              </div>
+            </div>
+            <div>
+              <label for="apellido" class="block mb-2 text-sm font-medium text-gray-900">Apellido</label>
+              <input type="text" formControlName="apellido" id="apellido" placeholder="Escribe tu apellido"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              <div *ngIf="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched" class="text-red-500 text-sm mt-1">
+                El apellido es requerido
+              </div>
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div>
+            <label for="direccion" class="block mb-2 text-sm font-medium text-gray-900">Dirección</label>
+            <input type="text" formControlName="direccion" id="direccion" placeholder="Escribe tu dirección"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <div *ngIf="registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched" class="text-red-500 text-sm mt-1">
+              La dirección es requerida
+            </div>
+          </div>
+
+          <!-- Especialidad -->
+          <div>
+            <label for="especialidad" class="block mb-2 text-sm font-medium text-gray-900">Especialidad</label>
+            <input type="text" formControlName="especialidad" id="especialidad" placeholder="Tu especialidad"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <div *ngIf="registerForm.get('especialidad')?.invalid && registerForm.get('especialidad')?.touched" class="text-red-500 text-sm mt-1">
+              La especialidad es requerida
+            </div>
+          </div>
+
+          <!-- Checkbox términos -->
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="terms" formControlName="aceptoTerminos" type="checkbox"
+                class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300">
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="terms" class="font-light text-gray-500">Acepto los <a class="font-medium text-blue-600 hover:underline" href="#">Términos y Condiciones</a></label>
+            </div>
+          </div>
+          <div *ngIf="registerForm.get('aceptoTerminos')?.invalid && registerForm.get('aceptoTerminos')?.touched" class="text-red-500 text-sm">
+            Debes aceptar los términos y condiciones
+          </div>
+
+          <!-- Botón -->
+          <button type="submit" [disabled]="isLoading"
+            class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50">
+            {{ isLoading ? 'Creando cuenta...' : 'Crear cuenta' }}
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<section class="bg-[rgba(31,87,203,1)] py-16">
+  <div class="max-w-7xl mx-auto px-8">
+    <h2 class="text-3xl font-bold text-white mb-8">¿Por qué unirte a MobilityPLUS como profesional?</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+
+      <!-- Card 1 -->
+      <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+        <div class="mb-4 text-[rgba(31,87,203,1)] flex justify-center">
+          <i class="fas fa-calendar-alt text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4 text-center">Maneja tus horarios</h3>
+        <p class="text-gray-600 text-center">Elige en qué momentos quieres atender y administra tu tiempo libremente.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+        <div class="mb-4 text-[rgba(31,87,203,1)] flex justify-center">
+          <i class="fas fa-users text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4 text-center">Elige a tus pacientes</h3>
+        <p class="text-gray-600 text-center">Conecta directamente con las personas que necesiten tus servicios.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-6 bg-white rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+        <div class="mb-4 text-[rgba(31,87,203,1)] flex justify-center">
+          <i class="fas fa-briefcase-medical text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4 text-center">Más libertad profesional</h3>
+        <p class="text-gray-600 text-center">Crea tu propio camino laboral con mayor independencia y flexibilidad.</p>
+      </div>
+    </div>
+  </div>
+</section>
