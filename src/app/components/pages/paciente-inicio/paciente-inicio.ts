@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-paciente-inicio',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,],
   templateUrl: './paciente-inicio.html',
   styleUrls: ['./paciente-inicio.css']
 })

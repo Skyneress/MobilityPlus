@@ -5,11 +5,14 @@ import { PacienteInicio } from './components/pages/paciente-inicio/paciente-inic
 import { RegistroSalud } from './components/pages/registro-salud/registro-salud';
 import { InicioSesion } from './components/pages/inicio-sesion/inicio-sesion';
 import { RegistroPaciente } from './components/pages/registro-paciente/registro-paciente';
+import { PacientePerfil } from './components/pages/paciente-perfil/paciente-perfil';
 
-// 👇 Usa el nombre correcto del layout y la ruta correcta
+// Layouts
 import { GeneralLayoutComponent } from './layouts/general/general';
+import { Paciente } from './layouts/paciente/paciente';
 
 export const routes: Routes = [
+  // Rutas públicas
   {
     path: '',
     component: GeneralLayoutComponent,
@@ -21,9 +24,17 @@ export const routes: Routes = [
     ],
   },
 
-  // Inicio del paciente (dashboard)
-  { path: 'paciente-inicio', component: PacienteInicio },
+  // Rutas privadas del paciente 
+  {
+    path: 'paciente',
+    component: Paciente, 
+    children: [
+      { path: 'inicio', component: PacienteInicio },
+      { path: 'perfil', component: PacientePerfil },
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' }
+    ]
+  },
 
-  // Wildcard: cualquier ruta inexistente → redirigir al inicio
+  // Wildcard → redirigir al inicio
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

@@ -8,7 +8,7 @@ import { NavbarComponent } from "../../shared/navbar.component/navbar.component"
 @Component({
   selector: 'app-registro-salud',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, ],
   templateUrl: './registro-salud.html',
   styleUrls: ['./registro-salud.css']
 })
@@ -35,7 +35,7 @@ export class RegistroSalud {
     }, { validators: this.passwordMatchValidator });
   }
 
-  // 🔐 Validador de coincidencia de contraseñas
+  //  Validador de coincidencia de contraseñas
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
@@ -55,7 +55,7 @@ export class RegistroSalud {
     return { mismatch: true };
   }
 
-  // 🚀 Método de envío del formulario
+  //  Método de envío del formulario
   async onSubmit() {
     if (this.registerForm.valid) {
       this.isLoading = true;
@@ -94,7 +94,7 @@ export class RegistroSalud {
     }
   }
 
-  // 🔄 Marca todos los campos como "tocados"
+  //  Marca todos los campos como "tocados"
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);

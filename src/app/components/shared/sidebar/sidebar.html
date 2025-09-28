@@ -1,6 +1,6 @@
-<aside class="w-64 bg-[rgb(26,115,232)] shadow-md fixed h-full left-0 top-0 z-50 hidden md:flex flex-col p-4">
+<aside class="w-64 bg-[rgb(26,115,232)] shadow-md fixed h-full left-0 top-0 z-50 flex flex-col p-4 transform transition-transform duration-300 md:translate-x-0 -translate-x-full">
   <!-- Logo -->
-  <a routerLink="/" class="flex items-center space-x-3 mb-6">
+  <a routerLink="/paciente/inicio" class="flex items-center space-x-3 mb-6">
     <span
       class="self-center text-2xl font-semibold whitespace-nowrap text-white bg-[rgb(173,240,199)] p-2 rounded-full shadow-lg">
       MobilityPLUS
@@ -9,41 +9,34 @@
 
   <!-- Navegación -->
   <div class="flex flex-col space-y-4 text-white">
-    <a routerLink="/" class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
-      <span class="material-icons">home</span>
-      <span>home</span>
+    <a routerLink="/paciente/inicio" 
+       routerLinkActive="bg-[rgba(31,87,203,0.8)]"
+       class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
+      <span class="material-icons">Inicio</span>
+      <span></span>
     </a>
-    <a routerLink="/perfil" class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
-      <span class="material-icons">person</span>
-      <span>Perfil</span>
+    <a routerLink="/paciente/perfil" 
+       routerLinkActive="bg-[rgba(31,87,203,0.8)]"
+       class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
+      <span class="material-icons">Perfil</span>
+      <span></span>
     </a>
-    <a routerLink="/chat" class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
-      <span class="material-icons">chat</span>
-      <span>Chat</span>
+    <a routerLink="/paciente/chat" 
+       routerLinkActive="bg-[rgba(31,87,203,0.8)]"
+       class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
+      <span class="material-icons">Chat</span>
+      <span></span>
     </a>
-    <a routerLink="/saved" class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
-      <span class="material-icons">bookmark</span>
-      <span>Saved</span>
+    <a routerLink="/paciente/saved" 
+       routerLinkActive="bg-[rgba(31,87,203,0.8)]"
+       class="flex items-center space-x-2 py-2 px-3 rounded hover:bg-[rgba(31,87,203,0.5)] transition">
+      <span class="material-icons">Guardados</span>
+      <span></span>
     </a>
   </div>
 </aside>
 
-<div class="md:ml-64 p-8 min-h-screen bg-gray-100">
-  <h1 class="text-3xl font-bold text-blue-900 mb-8">Bienvenido a tu panel de paciente</h1>
-  
-  <div *ngIf="isLoading" class="text-center">
-    <p>Cargando información...</p>
-  </div>
-
-  <div *ngIf="!isLoading && userData" class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-semibold mb-4">Tu información</h2>
-    <p><strong>Nombre:</strong> {{ userData.nombre }} {{ userData.apellido }}</p>
-    <p><strong>Email:</strong> {{ userData.email }}</p>
-    <p><strong>Teléfono:</strong> {{ userData.telefono }}</p>
-    <p><strong>Dirección:</strong> {{ userData.direccion }}</p>
-  </div>
-
-  <button (click)="logout()" class="mt-6 bg-red-600 text-white px-4 py-2 rounded">
-    Cerrar sesión
-  </button>
-</div>
+<!-- Botón para móvil -->
+<button class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded">
+  <span class="material-icons">menu</span>
+</button>

@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule, } from '@angular/router'; // <- Router y RouterModule vienen de @angular/router
 import { AuthService } from 'src/app/services/auth.service';
-import { NavbarComponent } from "../../shared/navbar.component/navbar.component";
-import { InicioSesion } from '../inicio-sesion/inicio-sesion';
+
+
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, RouterModule ],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule ],
   templateUrl: './inicio.html',
   styleUrls: ['./inicio.css']
 })
