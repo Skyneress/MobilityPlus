@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }) {
           <Text className="text-az-primario text-2xl font-bold">🧭</Text>
         </View>
         <Text className="text-2xl font-bold text-texto-oscuro">
-          Mobility <Text className="text-az-primario">PLUS</Text>
+          Mobility <Text className="text-az-primario">Plus</Text>
         </Text>
         <Text className="text-gray-500 mt-1">
           Una aplicación para tu bienestar

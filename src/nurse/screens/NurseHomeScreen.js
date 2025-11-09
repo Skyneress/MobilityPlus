@@ -1,66 +1,134 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, SafeAreaView, Alert, ScrollView } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text, TouchableOpacity, SafeAreaView, Switch, ScrollView, Alert } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons'; 
 
-const NurseHomeScreen = () => {
+// Color de éxito (verde) para el estado 'disponible'
+const ONLINE_COLOR = "#4CAF50"; 
+// Color primario para el branding
+const PRIMARY_COLOR = "#3A86FF";
+
+// Datos de ejemplo para las solicitudes de trabajo
+const mockRequests = [
+  { id: 1, type: 'Inyección Intravenosa', distance: '1.2 km', patient: 'Sra. Elena P.', time: 'Hace 5 min' },
+  { id: 2, type: 'Curación de Heridas', distance: '3.5 km', patient: 'Sr. Carlos M.', time: 'Hace 10 min' },
+  { id: 3, type: 'Monitoreo de Glicemia', distance: '0.8 km', patient: 'Joven David R.', time: 'Hace 15 min' },
+];
+
+const NurseHomeScreen = ({ navigation }) => {
   const [isAvailable, setIsAvailable] = useState(false);
-  
+
   const toggleAvailability = () => {
     setIsAvailable(previousState => !previousState);
     Alert.alert(
-      isAvailable ? 'Desconectado' : 'Conectado',
-      isAvailable ? 'Ya no recibirás nuevas solicitudes de servicio.' : 'Estás disponible para recibir solicitudes de pacientes.',
+      "Estado Actualizado", 
+      isAvailable ? "Ahora estás DESCONECTADO y no recibirás trabajos." : "Ahora estás DISPONIBLE para recibir solicitudes."
     );
   };
 
-  const currentRequests = [
-    { id: 1, patientName: 'Jorge A.', service: 'Inyección Intramuscular', distance: '2.1 km', time: '5 min' },
-    { id: 2, patientName: 'María P.', service: 'Toma de Muestras', distance: '4.5 km', time: '12 min' },
-  ];
+  const handleAcceptJob = (jobId) => {
+    /* Alert.alert("Trabajo Aceptado", `Has aceptado el trabajo #${jobId}.`); */
+    // Lógica real: remover de la lista de pendientes, iniciar navegación.
+    navigation.navigate('JobDetail', { jobId: jobId })
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-fondo-claro">
       
-      {/* 🟢 Toggle de Disponibilidad */}
-      <View className={`p-4 flex-row items-center justify-between ${isAvailable ? 'bg-exito-verde/10' : 'bg-error-rojo/10'}`}>
-        <Text className="text-xl font-bold text-texto-oscuro">
-          Estado: {isAvailable ? '¡Disponible ahora!' : 'No Disponible'}
-        </Text>
-        <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={isAvailable ? '#f5dd4b' : '#f4f3f4'}
-          onValueChange={toggleAvailability}
-          value={isAvailable}
-        />
+      {/* 🧭 Encabezado Superior (Header) */}
+      <View className="flex-row justify-between items-center px-4 py-5 bg-az-primario/90 rounded-b-2xl shadow-md">
+        <TouchableOpacity onPress={() => Alert.alert('Perfil', 'Abriendo la configuración del Perfil')}>
+          <Ionicons name="settings-outline" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+        
+        <Text className="text-xl font-bold text-texto-claro">Panel de Enfermero</Text>
+        
+        <TouchableOpacity onPress={() => Alert.alert('Historial', 'Abriendo el historial de ganancias')}>
+          <Ionicons name="wallet-outline" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
-      
-      {/* 📋 Solicitudes Pendientes */}
-      <Text className="text-2xl font-bold text-texto-oscuro p-4 pt-6">
-        {isAvailable ? 'Solicitudes Recibidas' : 'Conéctate para ver solicitudes'}
-      </Text>
 
-      <ScrollView className="px-4">
-        {isAvailable && currentRequests.length > 0 ? (
-          currentRequests.map(request => (
-            <View key={request.id} className="bg-white p-4 mb-3 rounded-lg shadow-md border-l-4 border-az-primario">
-              <Text className="text-lg font-semibold text-texto-oscuro">{request.service}</Text>
-              <Text className="text-sm text-gray-500 mt-1">Paciente: {request.patientName}</Text>
-              <View className="flex-row justify-between mt-3">
-                <Text className="text-az-primario font-medium">Distancia: {request.distance}</Text>
-                <Text className="text-az-primario font-medium">Llegada Est.: {request.time}</Text>
-              </View>
-              <TouchableOpacity className="mt-4 bg-az-primario rounded-lg py-3 items-center" onPress={() => Alert.alert('Aceptar', `Has aceptado la solicitud de ${request.patientName}`)}>
-                <Text className="text-texto-claro font-bold">Aceptar Servicio</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        ) : (
-          <Text className="text-gray-400 text-center mt-8">
-            {isAvailable ? 'No hay solicitudes activas por el momento.' : 'Activa tu disponibilidad para empezar a trabajar.'}
+      <ScrollView className="flex-1 p-4">
+        
+        {/* 🟢 Tarjeta de Disponibilidad */}
+        <View className={`p-6 rounded-2xl shadow-lg mb-6 items-center ${isAvailable ? 'bg-exito-verde' : 'bg-error-rojo'}`}>
+          <Text className="text-texto-claro text-2xl font-bold mb-2">
+            {isAvailable ? "EN LÍNEA" : "FUERA DE SERVICIO"}
           </Text>
-        )}
+          <Text className="text-texto-claro text-sm mb-4">
+            {isAvailable ? "Recibirás notificaciones de trabajo cercanas" : "Ponte en línea para aceptar solicitudes."}
+          </Text>
+          <Switch
+            onValueChange={toggleAvailability}
+            value={isAvailable}
+            trackColor={{ false: "#FCA5A5", true: "#DCFCE7" }}
+            thumbColor={isAvailable ? "#FFFFFF" : "#FFFFFF"}
+          />
+        </View>
+
+        {/* 📊 Métricas Rápidas */}
+        <View className="flex-row justify-between mb-6">
+          <View className="w-[48%] bg-white p-4 rounded-xl shadow-md border border-gris-acento/50">
+            <Text className="text-xl font-bold text-texto-oscuro">$1,250</Text>
+            <Text className="text-sm text-gray-500">Ganancia Semanal</Text>
+          </View>
+          <View className="w-[48%] bg-white p-4 rounded-xl shadow-md border border-gris-acento/50">
+            <Text className="text-xl font-bold text-texto-oscuro">18</Text>
+            <Text className="text-sm text-gray-500">Servicios Hoy</Text>
+          </View>
+        </View>
+
+        {/* 🚨 Solicitudes de Trabajo Pendientes */}
+        <Text className="text-xl font-bold text-texto-oscuro mb-4">
+          Solicitudes Cercanas ({mockRequests.length})
+        </Text>
+        
+        {mockRequests.map(request => (
+          <View 
+            key={request.id} 
+            className="bg-white p-4 rounded-xl shadow-md mb-3 border border-gris-acento/50 flex-row justify-between items-center"
+          >
+            <View className="flex-1 mr-3">
+              <Text className="text-lg font-semibold text-texto-oscuro">{request.type}</Text>
+              <Text className="text-sm text-gray-600 mt-1">Paciente: {request.patient}</Text>
+              <View className="flex-row items-center mt-2">
+                <Ionicons name="location-outline" size={14} color="#6B7280" />
+                <Text className="text-sm text-gray-500 ml-1">{request.distance}</Text>
+                <Text className="text-xs text-gray-400 ml-4">{request.time}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              className="bg-az-primario py-2 px-4 rounded-full shadow-sm"
+              onPress={() => handleAcceptJob(request.id)}
+            >
+              <Text className="text-texto-claro font-bold text-sm">Aceptar</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
       </ScrollView>
 
+      {/* Barra de Navegación Inferior (Tab Bar) */}
+<View className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl">
+  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseHome')}>
+    <Ionicons name="home" size={24} color={PRIMARY_COLOR} />
+    <Text className="text-az-primario text-xs font-semibold">Panel</Text>
+  </TouchableOpacity>
+  
+  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseSchedule')}>
+    <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
+    <Text className="text-gray-400 text-xs">Agenda</Text>
+  </TouchableOpacity>
+  
+  <TouchableOpacity className="items-center" onPress={() => Alert.alert('Mensajes', 'Abriendo chat')}>
+    <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
+    <Text className="text-gray-400 text-xs">Mensajes</Text>
+  </TouchableOpacity>
+  
+  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseProfile')}>
+    <Ionicons name="person-outline" size={24} color="#9ca3af" />
+    <Text className="text-gray-400 text-xs">Perfil</Text>
+  </TouchableOpacity>
+</View>
     </SafeAreaView>
   );
 };
