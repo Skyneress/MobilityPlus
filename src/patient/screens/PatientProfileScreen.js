@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
@@ -23,7 +22,7 @@ const InfoRow = ({ icon, label, value, onPressEdit }) => (
   </View>
 );
 
-const NurseProfileScreen = ({ navigation }) => {
+const PatientProfileScreen = ({ navigation }) => {
   const handleEdit = (field) => {
     Alert.alert("Editar", `Abriendo modal para editar: ${field}`);
     // Lógica real: Abrir un modal o navegar a una pantalla de edición
@@ -37,7 +36,7 @@ const NurseProfileScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-texto-claro ml-4">Mi Perfil Profesional</Text>
+        <Text className="text-xl font-bold text-texto-claro ml-4">Mi Perfil</Text>
       </View>
 
       <ScrollView className="flex-1 p-4">
@@ -45,57 +44,49 @@ const NurseProfileScreen = ({ navigation }) => {
         {/* Sección de Foto y Nombre */}
         <View className="items-center py-6 bg-white rounded-xl shadow-md mb-6 border border-gris-acento">
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1579621970588-a35d0e7ab93b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
+            source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
             className="w-24 h-24 rounded-full border-4 border-az-primario shadow-lg"
           />
-          <Text className="text-2xl font-bold text-texto-oscuro mt-3">Dr. Carlos Smith</Text>
-          <Text className="text-base text-gray-500">Enfermero Registrado (RN)</Text>
-          
-          {/* Calificación */}
-          <View className="flex-row items-center mt-2">
-            <FontAwesome name="star" size={18} color="#FFD700" />
-            <Text className="text-lg font-semibold text-texto-oscuro ml-2">4.9</Text>
-            <Text className="text-sm text-gray-500 ml-1">(120 Reviews)</Text>
-          </View>
-          
+          <Text className="text-2xl font-bold text-texto-oscuro mt-3">Viviana López</Text>
+          <Text className="text-base text-gray-500">Paciente</Text>
         </View>
 
-        {/* 📚 Sección de Información Profesional */}
+        {/* 📍 Sección de Dirección y Contacto */}
         <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
-          <Text className="text-lg font-bold text-az-primario mb-3">Información Profesional</Text>
+          <Text className="text-lg font-bold text-az-primario mb-3">Información de Servicio</Text>
           <InfoRow 
-            icon="card-outline" 
-            label="Número de Licencia" 
-            value="RN-897534"
-            onPressEdit={() => handleEdit('Licencia')}
+            icon="location-outline" 
+            label="Dirección Principal" 
+            value="Calle Falsa 123, Depto. 4B"
+            onPressEdit={() => handleEdit('Dirección')}
           />
           <InfoRow 
-            icon="briefcase-outline" 
-            label="Especialidad" 
-            value="Cuidado Geriátrico Avanzado"
-            onPressEdit={() => handleEdit('Especialidad')}
+            icon="alert-circle-outline" 
+            label="Contacto de Emergencia" 
+            value="Juan Pérez (+56 9 9876 5432)"
+            onPressEdit={() => handleEdit('Emergencia')}
           />
            <InfoRow 
-            icon="cash-outline" 
-            label="Tarifa por Visita" 
-            value="$45 USD / hora"
-            onPressEdit={() => handleEdit('Tarifa')}
+            icon="bandage-outline" 
+            label="Condición Médica Relevante" 
+            value="Movilidad Reducida / Diabetes"
+            onPressEdit={() => handleEdit('Condición')}
           />
         </View>
 
-        {/* 📞 Sección de Contacto */}
+        {/* 📞 Sección de Contacto Personal */}
         <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
-          <Text className="text-lg font-bold text-az-primario mb-3">Datos de Contacto</Text>
+          <Text className="text-lg font-bold text-az-primario mb-3">Datos Personales</Text>
           <InfoRow 
             icon="mail-outline" 
             label="Correo Electrónico" 
-            value="carlos.smith@mobilityplus.com"
+            value="viviana.lopez@gmail.com"
             onPressEdit={() => handleEdit('Correo')}
           />
           <InfoRow 
             icon="call-outline" 
             label="Teléfono" 
-            value="+56 9 9876 5432"
+            value="+56 9 1234 5678"
             onPressEdit={() => handleEdit('Teléfono')}
           />
         </View>
@@ -112,18 +103,20 @@ const NurseProfileScreen = ({ navigation }) => {
 
       {/* Barra de Navegación Inferior (Tab Bar) */}
       <View className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl">
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseHome')}>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('PatientHome')}>
           <Ionicons name="home-outline" size={24} color="#9ca3af" />
-          <Text className="text-gray-400 text-xs">Panel</Text>
+          <Text className="text-gray-400 text-xs">Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseSchedule')}>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('PatientHistory')}>
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
-          <Text className="text-gray-400 text-xs">Agenda</Text>
+          <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Paciente Activo', contactRole: 'Paciente' })} 
+        <TouchableOpacity 
+            className="items-center" 
+            onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })} // Navega a la pantalla de Chat
         >
-          <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
-          <Text className="text-gray-400 text-xs">Mensajes</Text>
+            <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" /> 
+            <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center">
           <Ionicons name="person" size={24} color={PRIMARY_COLOR} />
@@ -134,4 +127,4 @@ const NurseProfileScreen = ({ navigation }) => {
   );
 };
 
-export default NurseProfileScreen;
+export default PatientProfileScreen;

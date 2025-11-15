@@ -4,6 +4,8 @@ import NurseHomeScreen from "../screens/NurseHomeScreen";
 import NurseScheduleScreen from "../screens/NurseScheduleScreen";
 import NurseProfileScreen from "../screens/NurseProfileScreen";
 import JobDetailScreen from "../screens/JobDetailScreen";
+import NurseEarningsScreen from "../screens/NurseEarningsScreen";
+import ChatScreen from "../../shared/screens/ChatScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +33,16 @@ const NurseStack = () => {
         name="JobDetail"
         component={JobDetailScreen}
         options={{ title: "Detalles de trabajo", headerShown: false }}
+      />
+      <Stack.Screen
+        name="NurseEarnings"
+        component={NurseEarningsScreen}
+        options={{ title: "Ganancias", headerShown: false }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

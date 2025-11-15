@@ -157,16 +157,19 @@ const PatientHomeScreen = ({ navigation }) => {
           <Ionicons name="home" size={24} color={PRIMARY_COLOR} />
           <Text className="text-az-primario text-xs font-semibold">Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Ionicons name="calendar-outline" size={24} color="#9ca3af" /> {/* Gris estático */}
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('PatientHistory')}>
+          <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Ionicons name="bookmark-outline" size={24} color="#9ca3af" /> {/* Gris estático */}
-          <Text className="text-gray-400 text-xs">Guardado</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Ionicons name="person-outline" size={24} color="#9ca3af" /> {/* Gris estático */}
+        <TouchableOpacity 
+            className="items-center" 
+            onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })} // Navega a la pantalla de Chat
+          >
+            <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" /> 
+            <Text className="text-gray-400 text-xs">Mensajes</Text>
+          </TouchableOpacity>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('PatientProfile')}>
+          <Ionicons name="person-outline" size={24} color="#9ca3af" /> 
           <Text className="text-gray-400 text-xs">Perfil</Text>
         </TouchableOpacity>
       </View>

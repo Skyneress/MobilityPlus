@@ -97,10 +97,13 @@ const NurseScheduleScreen = ({ navigation }) => {
     <Text className="text-az-primario text-xs font-semibold">Agenda</Text>
   </TouchableOpacity>
   
-  <TouchableOpacity className="items-center" onPress={() => Alert.alert('Mensajes', 'Abriendo chat')}>
-    <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
-    <Text className="text-gray-400 text-xs">Mensajes</Text>
-  </TouchableOpacity>
+  <TouchableOpacity 
+            className="items-center" 
+            onPress={() => navigation.navigate('Chat', { contactName: 'Paciente Activo', contactRole: 'Paciente' })} 
+  >
+            <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
+            <Text className="text-gray-400 text-xs">Mensajes</Text>
+          </TouchableOpacity>
   
   <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseProfile')}>
     <Ionicons name="person-outline" size={24} color="#9ca3af" />

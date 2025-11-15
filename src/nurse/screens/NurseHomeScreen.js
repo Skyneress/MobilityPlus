@@ -26,9 +26,8 @@ const NurseHomeScreen = ({ navigation }) => {
   };
 
   const handleAcceptJob = (jobId) => {
-    /* Alert.alert("Trabajo Aceptado", `Has aceptado el trabajo #${jobId}.`); */
-    // Lógica real: remover de la lista de pendientes, iniciar navegación.
-    navigation.navigate('JobDetail', { jobId: jobId })
+    // Aquí puedes navegar a JobDetailScreen si lo deseas, o simplemente aceptar.
+    navigation.navigate('JobDetail', { jobId });
   };
 
   return (
@@ -36,13 +35,13 @@ const NurseHomeScreen = ({ navigation }) => {
       
       {/* 🧭 Encabezado Superior (Header) */}
       <View className="flex-row justify-between items-center px-4 py-5 bg-az-primario/90 rounded-b-2xl shadow-md">
-        <TouchableOpacity onPress={() => Alert.alert('Perfil', 'Abriendo la configuración del Perfil')}>
+        <TouchableOpacity onPress={() => navigation.navigate('NurseProfile')}>
           <Ionicons name="settings-outline" size={28} color="#FFFFFF" />
         </TouchableOpacity>
         
         <Text className="text-xl font-bold text-texto-claro">Panel de Enfermero</Text>
         
-        <TouchableOpacity onPress={() => Alert.alert('Historial', 'Abriendo el historial de ganancias')}>
+        <TouchableOpacity onPress={() => navigation.navigate('NurseEarnings')}>
           <Ionicons name="wallet-outline" size={28} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -108,27 +107,35 @@ const NurseHomeScreen = ({ navigation }) => {
       </ScrollView>
 
       {/* Barra de Navegación Inferior (Tab Bar) */}
-<View className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl">
-  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseHome')}>
-    <Ionicons name="home" size={24} color={PRIMARY_COLOR} />
-    <Text className="text-az-primario text-xs font-semibold">Panel</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseSchedule')}>
-    <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
-    <Text className="text-gray-400 text-xs">Agenda</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity className="items-center" onPress={() => Alert.alert('Mensajes', 'Abriendo chat')}>
-    <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
-    <Text className="text-gray-400 text-xs">Mensajes</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseProfile')}>
-    <Ionicons name="person-outline" size={24} color="#9ca3af" />
-    <Text className="text-gray-400 text-xs">Perfil</Text>
-  </TouchableOpacity>
-</View>
+      <View className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl">
+        
+        {/* PANEL (ACTIVO) */}
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseHome')}>
+          <Ionicons name="home" size={24} color={PRIMARY_COLOR} />
+          <Text className="text-az-primario text-xs font-semibold">Panel</Text>
+        </TouchableOpacity>
+        
+        {/* AGENDA */}
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseSchedule')}>
+          <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
+          <Text className="text-gray-400 text-xs">Agenda</Text>
+        </TouchableOpacity>
+        
+        {/* MENSAJES (CHAT) -> ¡CONECTADO! */}
+        <TouchableOpacity 
+          className="items-center" 
+          onPress={() => navigation.navigate('Chat', { contactName: 'Paciente Activo', contactRole: 'Paciente' })} 
+        >
+          <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
+          <Text className="text-gray-400 text-xs">Mensajes</Text>
+        </TouchableOpacity>
+        
+        {/* PERFIL */}
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('NurseProfile')}>
+          <Ionicons name="person-outline" size={24} color="#9ca3af" />
+          <Text className="text-gray-400 text-xs">Perfil</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

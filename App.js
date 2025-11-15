@@ -10,7 +10,7 @@ import "./global.css";
 // En una aplicación real, estas variables se manejarían con React Context o Redux,
 // y se actualizarían con los datos recibidos del inicio de sesión.
 const isAuthenticated = true; // true = Muestra la app | false = Muestra Login/Registro
-const userRole = 'nurse'; // Define el rol: 'patient' o 'nurse'
+const userRole = 'patient'; // Define el rol: 'patient' o 'nurse'
 
 // Componente que decide qué Stack de navegación mostrar (EL ROUTER)
 const RootNavigator = () => {
