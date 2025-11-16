@@ -7,6 +7,8 @@ import ChatScreen from '../../shared/screens/ChatScreen';
 import ProfessionalDetailScreen from '../screens/ProfessionalDetailScreen'
 import BookAppointmentScreen from '../screens/BookAppointmentScreen';
 import PatientLogScreen from '../screens/PatientLogScreen';
+import RatingScreen from '../screens/RatingScreen';
+import ChatListScreen from '../../shared/screens/ChatListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +46,16 @@ const AppStack = () => {
         name="PatientLog" 
         component={PatientLogScreen} 
         options={{ headerShown: false }} 
+      />
+        <Stack.Screen 
+        name="Rating" 
+        component={RatingScreen} 
+        options={{ headerShown: false }} 
+      />
+        <Stack.Screen
+        name="ChatList"
+        component={ChatListScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
     

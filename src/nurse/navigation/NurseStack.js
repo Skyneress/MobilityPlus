@@ -7,6 +7,7 @@ import JobDetailScreen from "../screens/JobDetailScreen";
 import NurseEarningsScreen from "../screens/NurseEarningsScreen";
 import ChatScreen from "../../shared/screens/ChatScreen";
 import CompleteJobScreen from '../screens/CompleteJobScreen'; 
+import ChatListScreen from "../../shared/screens/ChatListScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -50,6 +51,11 @@ const NurseStack = () => {
         name="CompleteJob" 
         component={CompleteJobScreen} 
         options={{ headerShown: false }} 
+      />
+      <Stack.Screen
+        name="ChatList"
+        component={ChatListScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

@@ -2,80 +2,123 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Image, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
-// Importamos funciones de Firestore
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+// 💡 1. Importamos 'onSnapshot' en lugar de 'getDocs'
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 
 const PRIMARY_COLOR = "#3A86FF"; 
 
 const PatientHomeScreen = ({ navigation }) => {
-  // Estados para manejar los datos y la carga
-  const [loading, setLoading] = useState(true);
-  const [professionals, setProfessionals] = useState([]);
+  // Estados (sin cambios)
+  const [loadingProfessionals, setLoadingProfessionals] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [professionals, setProfessionals] = useState([]); 
+  const [categories, setCategories] = useState([]); 
+  const [selectedCategory, setSelectedCategory] = useState('all'); 
   const [searchQuery, setSearchQuery] = useState('');
 
-  // useEffect para cargar los profesionales al montar la pantalla
+  // useEffect para Cargar las Categorías (sin cambios)
   useEffect(() => {
-    const fetchProfessionals = async () => {
-      setLoading(true);
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
       try {
-        // Consultamos la colección "profesionales"
-        const professionalsRef = collection(db, "profesionales");
+        const categoriesRef = collection(db, "Especialidades");
+        const q = query(categoriesRef, orderBy("orden", "asc"));
         
-        // Filtramos solo los que están verificados y disponibles
-        const q = query(
-          professionalsRef, 
-          where("estadoVerificacion", "==", "verificado"),
-          where("disponibilidad", "==", true),
-          orderBy("calificacion", "desc") // Ordenamos por mejor calificación
-        );
+        // Usamos onSnapshot aquí también para que las categorías sean en tiempo real
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const categoriesList = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setCategories([{ id: 'all', nombre: 'Todos' }, ...categoriesList]);
+          setLoadingCategories(false);
+        });
+        return unsubscribe; // Retornamos para limpiar el oyente
 
-        const querySnapshot = await getDocs(q);
+      } catch (error) {
+        console.error("Error al cargar categorías: ", error);
+        Alert.alert("Error", "No se pudo cargar la lista de especialidades.");
+        setLoadingCategories(false);
+      }
+    };
+    
+    // (FIX: La función debe ser llamada)
+    const unsubscribeCategories = fetchCategories();
+    
+    // Limpiamos el 'oyente' de categorías
+    return () => {
+        unsubscribeCategories.then(unsub => unsub && unsub());
+    };
+  }, []); 
+
+  // 💡 2. useEffect para Cargar los Profesionales (ACTUALIZADO A TIEMPO REAL)
+  useEffect(() => {
+    setLoadingProfessionals(true);
+    
+    try {
+      const professionalsRef = collection(db, "profesionales");
+      
+      let qBase = query(
+        professionalsRef, 
+        where("estadoVerificacion", "==", "verificado"),
+        where("disponibilidad", "==", true) // <-- El filtro clave
+      );
+
+      if (selectedCategory && selectedCategory !== 'all') {
+        qBase = query(qBase, where("especialidad", "==", selectedCategory));
+      }
+
+      const qFinal = query(qBase, orderBy("calificacion", "desc"));
+
+      // 💡 3. Usamos 'onSnapshot' (oyente) en lugar de 'getDocs' (una sola vez)
+      // Esto "escuchará" los cambios de disponibilidad en tiempo real
+      const unsubscribe = onSnapshot(qFinal, (querySnapshot) => {
         const professionalsList = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-        
         setProfessionals(professionalsList);
-        
-      } catch (error) {
-        console.error("Error al cargar profesionales: ", error);
-        Alert.alert("Error", "No se pudo cargar la lista de profesionales.");
-      } finally {
-        setLoading(false);
-      }
-    };
+        setLoadingProfessionals(false);
+      }, (error) => {
+        console.error("Error al cargar profesionales (revisar índice): ", error);
+        // Ya no mostramos alerta, solo log
+        setLoadingProfessionals(false);
+      });
 
-    fetchProfessionals();
-  }, []); // El array vacío asegura que se ejecute solo una vez
+      // Limpiamos el oyente cuando el filtro cambia o el componente se desmonta
+      return () => unsubscribe(); 
 
-  const handleSearch = (text) => {
-    setSearchQuery(text);
-    // Aquí se podría implementar una búsqueda en tiempo real si se desea
-  };
+    } catch (error) {
+       console.error("Error al construir la consulta: ", error);
+       setLoadingProfessionals(false);
+    }
+    
+  }, [selectedCategory]); // Se vuelve a ejecutar CADA VEZ que 'selectedCategory' cambia
 
-  // Filtramos los profesionales basados en la búsqueda (simple, por nombre)
+  
+  // Filtro local por texto (sin cambios)
   const filteredProfessionals = professionals.filter(prof => 
     prof.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
     prof.apellido.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
+  // ------------------------- RENDERIZADO (Sin cambios) -------------------------
   return (
     <SafeAreaView className="flex-1 bg-blue-100"> 
-      {/* Header - Barra Superior */}
+      {/* Header */}
       <View className="flex-row justify-between items-center px-4 py-5 bg-az-primario/90 rounded-b-2xl shadow-md">
         <TouchableOpacity onPress={() => navigation.navigate('PatientProfile')}>
           <Ionicons name="person-circle-outline" size={30} color="#FFFFFF" />
         </TouchableOpacity>
-        
         <Text className="text-xl font-bold text-texto-claro">Mobility PLUS</Text>
-        
         <TouchableOpacity onPress={() => Alert.alert('Menú', 'Abriendo el menú lateral')}>
           <Ionicons name="menu" size={30} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
-      {/* Contenido Principal con Tarjeta Flotante */}
+      {/* Contenido Principal */}
       <ScrollView className="flex-1 p-4 -mt-8 z-10"> 
         <View className="bg-white p-6 rounded-2xl shadow-lg mb-6">
           <Text className="text-3xl font-bold text-texto-oscuro mb-2">
@@ -91,40 +134,74 @@ const PatientHomeScreen = ({ navigation }) => {
               placeholder="Buscar un especialista..."
               placeholderTextColor="#9ca3af"
               value={searchQuery}
-              onChangeText={handleSearch}
+              onChangeText={setSearchQuery}
             />
           </View>
 
-          {/* Profesionales con mejor calificación */}
+          {/* Scroll Horizontal de Categorías */}
+          <View className="mt-8">
+            <Text className="text-xl font-bold text-texto-oscuro mb-4">
+              Categorías
+            </Text>
+            {loadingCategories ? (
+              <ActivityIndicator color={PRIMARY_COLOR} />
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {categories.map(cat => (
+                  <TouchableOpacity 
+                    key={cat.id}
+                    className={`py-2 px-5 rounded-full mr-3 border ${
+                      selectedCategory === cat.id 
+                        ? 'bg-az-primario border-az-primario' 
+                        : 'bg-fondo-claro border-gris-acento'
+                    }`}
+                    onPress={() => setSelectedCategory(cat.id)}
+                  >
+                    <Text className={`font-semibold ${
+                      selectedCategory === cat.id 
+                        ? 'text-texto-claro' 
+                        : 'text-texto-oscuro'
+                    }`}>
+                      {cat.nombre}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+
+
+          {/* Profesionales Disponibles */}
           <Text className="text-xl font-bold text-texto-oscuro mt-8 mb-4">
             Profesionales Disponibles
           </Text>
           
-          {loading ? (
+          {loadingProfessionals ? (
             <ActivityIndicator size="large" color={PRIMARY_COLOR} className="my-10" />
           ) : (
             <View className="flex-row flex-wrap justify-between">
               
               {filteredProfessionals.length === 0 ? (
-                <Text className="text-gray-500 text-center w-full">No se encontraron profesionales disponibles.</Text>
+                <Text className="text-gray-500 text-center w-full">
+                  No se encontraron profesionales para esta categoría.
+                </Text>
               ) : (
                 filteredProfessionals.map(prof => (
                   <TouchableOpacity 
                     key={prof.id}
                     className="w-[48%] mb-4 bg-white rounded-lg shadow-md overflow-hidden border border-gris-acento/50"
-                    // 💡 NAVEGACIÓN: Al presionar, vamos al detalle del profesional
                     onPress={() => navigation.navigate('ProfessionalDetail', { professionalId: prof.id })}
                   >
                     <Image 
-                      // Usamos la foto de perfil de Firebase o un placeholder
-                      source={{ uri: prof.fotoPerfil || 'https://via.placeholder.com/150' }} 
+                      source={{ uri: prof.fotoPerfil || `https://placehold.co/150x150/EBF8FF/3A86FF?text=${prof.nombre.charAt(0)}` }} 
                       className="w-full h-32 object-cover" 
                     />
                     <View className="p-3">
                       <Text className="text-texto-oscuro font-semibold">{prof.nombre} {prof.apellido}</Text>
+                      <Text className="text-xs text-az-primario">{prof.especialidadNombre}</Text>
                       <View className="flex-row items-center mt-1">
                          <FontAwesome name="star" size={14} color="#FFD700" />
-                         <Text className="text-sm text-gray-500 ml-1">{prof.calificacion || 0} ({prof.reviews || 0})</Text>
+                         <Text className="text-sm text-gray-500 ml-1">{prof.calificacion || 0}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -147,7 +224,7 @@ const PatientHomeScreen = ({ navigation }) => {
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })}>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('ChatList')}>
           <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>

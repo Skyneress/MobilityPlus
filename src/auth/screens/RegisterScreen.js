@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, Switch, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // Componente de selector
-// Importaciones de Firebase necesarias para la carga de datos
+// Importaciones de Firebase necesarias
 import { collection, query, orderBy, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore'; 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../config/firebaseConfig'; 
@@ -9,7 +9,7 @@ import { auth, db } from '../../config/firebaseConfig';
 // Colores definidos en tu tailwind.config.js
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
-const PLACEHOLDER_COLOR = "#9ca3af";
+const PLACEHOLDER_COLOR = "#9ca3af"; // Color para el placeholder del Picker
 
 const RegisterScreen = ({ navigation }) => {
   // ------------------------- ESTADOS GENERALES -------------------------
@@ -28,7 +28,7 @@ const RegisterScreen = ({ navigation }) => {
   const [rut, setRut] = useState(''); 
   
   // ------------------------- ESTADOS ESPECÍFICOS DEL ENFERMERO -------------------------
-  const [especialidad, setEspecialidad] = useState(''); // Inicia vacío
+  const [especialidad, setEspecialidad] = useState(''); // <-- Inicia vacío
   const [specialtiesList, setSpecialtiesList] = useState([]); 
   const [numRegistroMinsal, setNumRegistroMinsal] = useState('');
   const [anosExperiencia, setAnosExperiencia] = useState('');
@@ -64,7 +64,7 @@ const RegisterScreen = ({ navigation }) => {
     fetchSpecialties();
   }, []); // El array de dependencias está vacío, se ejecuta solo una vez.
 
-  // ------------------------- LÓGICA DE REGISTRO (Simulada) -------------------------
+  // ------------------------- LÓGICA DE REGISTRO REAL -------------------------
   const handleRegister = async () => {
     // 1. Validaciones
     if (password !== confirmPassword) {
@@ -78,6 +78,7 @@ const RegisterScreen = ({ navigation }) => {
     }
     
     // Validaciones exclusivas del Enfermero
+    // 💡 AHORA VERIFICA SI 'especialidad' ESTÁ VACÍA
     if (isNurse && (!numRegistroMinsal || !especialidad || !aceptaTerminos)) {
         Alert.alert('Error', 'Completa todos los campos profesionales requeridos, incluyendo la especialidad.');
         return;
@@ -94,7 +95,6 @@ const RegisterScreen = ({ navigation }) => {
       const role = isNurse ? 'nurse' : 'patient';
 
       // 3. Crear el documento en la colección "users" (para TODOS)
-      // Esta es la colección que tu amigo definió en Angular
       const userDocRef = doc(db, "users", uid);
       const userData = {
         uid: uid,
@@ -106,19 +106,22 @@ const RegisterScreen = ({ navigation }) => {
         direccion: direccion,
         role: role,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        fotoPerfil: `https://placehold.co/150x150/EBF8FF/3A86FF?text=${nombre.charAt(0)}` // Placeholder inicial
       };
       await setDoc(userDocRef, userData);
 
       // 4. (CONDICIONAL) Crear el documento en la colección "profesionales"
-      // Si es enfermero, creamos el perfil profesional
       if (isNurse) {
         const profesionalDocRef = doc(db, "profesionales", uid);
 
-        // Convertimos campos a los tipos de datos correctos
         const experienceYears = anosExperiencia ? parseInt(anosExperiencia, 10) : 0;
         const consultationPrice = precioConsulta ? parseInt(precioConsulta, 10) : 0;
         const servicesArray = serviciosOfrecidos.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+        // 💡 Buscamos el nombre de la especialidad para guardarlo
+        const selectedSpecialtyObject = specialtiesList.find(s => s.id === especialidad);
+        const specialtyName = selectedSpecialtyObject ? selectedSpecialtyObject.nombre : especialidad; // Fallback
 
         const profesionalData = {
           uid: uid,
@@ -128,17 +131,19 @@ const RegisterScreen = ({ navigation }) => {
           email: email.toLowerCase(),
           telefono: telefono,
           direccion: direccion,
-          especialidad: especialidad, // ID de la especialidad (ej. 'kinesiologia')
+          
+          especialidad: especialidad, // El ID (ej: 'kinesiologia')
+          especialidadNombre: specialtyName, // El Nombre (ej: 'Kinesiología')
+          
           numeroRegistroMinsal: numRegistroMinsal,
           experiencia: experienceYears,
           serviciosOfrecidos: servicesArray,
           precioConsulta: consultationPrice,
-          
-          // Valores por defecto definidos en el servicio de Angular
           estadoVerificacion: 'pendiente', 
           fechaRegistro: serverTimestamp(),
           disponibilidad: true,
-          calificacion: 0 // Inicializamos la calificación
+          calificacion: 0,
+          fotoPerfil: `https://placehold.co/150x150/EBF8FF/3A86FF?text=${nombre.charAt(0)}`
         };
         await setDoc(profesionalDocRef, profesionalData);
       }
@@ -148,7 +153,7 @@ const RegisterScreen = ({ navigation }) => {
         '¡Registro Exitoso!',
         'Tu cuenta ha sido creada. Ahora serás dirigido al Login para iniciar sesión.'
       );
-      navigation.navigate("Login"); // Redirige al Login
+      navigation.navigate("Login"); 
 
     } catch (error) {
        // 6. Manejo de Errores
@@ -169,7 +174,6 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
   
-  // ------------------------- RENDERIZADO -------------------------
   // ------------------------- RENDERIZADO -------------------------
   return (
     <SafeAreaView className="flex-1 bg-fondo-claro">
@@ -260,7 +264,7 @@ const RegisterScreen = ({ navigation }) => {
                     <View className="space-y-4 pt-4 border-t border-gris-acento">
                         <Text className="text-lg font-bold text-az-primario mt-2">Datos Profesionales</Text>
                         
-                        {/* 💊 SELECTOR DE ESPECIALIDAD DINÁMICO */}
+                        {/* 💊 SELECTOR DE ESPECIALIDAD (MEJORADO) */}
                         <View className="w-full border border-gris-acento rounded-lg bg-white overflow-hidden">
                             {loadingSpecialties ? (
                                 <ActivityIndicator color={PRIMARY_COLOR} className="my-3" />
@@ -268,14 +272,14 @@ const RegisterScreen = ({ navigation }) => {
                                 <Picker
                                     selectedValue={especialidad}
                                     onValueChange={(itemValue) => setEspecialidad(itemValue)}
-                                    // Estilos para alinear con los inputs
+                                    // 💡 Estilos para que se parezca a un TextInput
                                     style={{ 
                                       height: 50, 
                                       color: especialidad === "" ? PLACEHOLDER_COLOR : TEXT_DARK 
                                     }} 
-                                    itemStyle={{ color: TEXT_DARK }} // (iOS)
+                                    itemStyle={{ color: TEXT_DARK }} // (Para iOS)
                                 >
-                                    {/* Placeholder no seleccionable */}
+                                    {/* 💡 Placeholder no seleccionable */}
                                     <Picker.Item 
                                         label="Selecciona una especialidad..." 
                                         value="" 
@@ -306,72 +310,65 @@ const RegisterScreen = ({ navigation }) => {
                             keyboardType="numeric"
                             onChangeText={setAnosExperiencia}
                             value={anosExperiencia}
-						/>
-						
-						<TextInput
-							className="w-full border border-gris-acento rounded-lg px-4 py-3 bg-white text-texto-oscuro"
-							placeholder="Precio de Consulta (CLP) - Ej: 25000"
-							keyboardType="numeric"
-							onChangeText={setPrecioConsulta}
-							value={precioConsulta}
-						/>
-						
-						<TextInput
-							className="w-full border border-gris-acento rounded-lg px-4 py-3 bg-white text-texto-oscuro h-24"
-							placeholder="Servicios Ofrecidos (Separa con comas: Curación, Inyecciones...)"
-							multiline
-							textAlignVertical="top"
-							onChangeText={setServiciosOfrecidos}
-							value={serviciosOfrecidos}
-						/>
-						
-						<View className="flex-row items-center mt-3">
-							 <Switch
-								onValueChange={setAceptaTerminos}
-								value={aceptaTerminos}
-								trackColor={{ false: "#9ca3af", true: "#DCFCE7" }}
-								thumbColor={aceptaTerminos ? "#4CAF50" : "#F3F4F6"}
-							/>
-							<Text className="text-gray-700 ml-2">
-								Acepto los <Text className="text-az-primario font-semibold">Términos y Condiciones</Text>
-							</Text>
-						</View>
+                        />
+                        
+                        <TextInput
+                            className="w-full border border-gris-acento rounded-lg px-4 py-3 bg-white text-texto-oscuro"
+                            placeholder="Precio de Consulta (CLP) - Ej: 25000"
+                            keyboardType="numeric"
+                            onChangeText={setPrecioConsulta}
+                            value={precioConsulta}
+                        />
+                        
+                        <TextInput
+                            className="w-full border border-gris-acento rounded-lg px-4 py-3 bg-white text-texto-oscuro h-24"
+                            placeholder="Servicios Ofrecidos (Separa con comas: Curación, Inyecciones...)"
+                            multiline
+                            textAlignVertical="top"
+                            onChangeText={setServiciosOfrecidos}
+                            value={serviciosOfrecidos}
+                        />
+                        
+                        <View className="flex-row items-center mt-3">
+                             <Switch
+                                onValueChange={setAceptaTerminos}
+                                value={aceptaTerminos}
+                                trackColor={{ false: "#9ca3af", true: "#DCFCE7" }}
+                                thumbColor={aceptaTerminos ? "#4CAF50" : "#F3F4F6"}
+                            />
+                            <Text className="text-gray-700 ml-2">
+                                Acepto los <Text className="text-az-primario font-semibold">Términos y Condiciones</Text>
+                            </Text>
+                        </View>
 
-					</View>
-				)}
-				{/* -------------------------------------------------------- */}
-			</View>
+                    </View>
+                )}
+                {/* -------------------------------------------------------- */}
+            </View>
 
-			<TouchableOpacity
-				className="bg-az-primario rounded-full py-4 mt-6 flex-row justify-center items-center shadow-md"
-				onPress={handleRegister}
-				disabled={loading}
-			>
-				 {loading ? (
-					<ActivityIndicator color="#FFFFFF" />
-				  ) : (
-					<Text className="text-texto-claro text-center font-semibold text-base">
-						Crear cuenta
-					</Text>
-				  )}
-			</TouchableOpacity>
+            <TouchableOpacity
+                className="bg-az-primario rounded-full py-4 mt-6 flex-row justify-center items-center shadow-md"
+                onPress={handleRegister}
+                disabled={loading}
+            >
+                 {loading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text className="text-texto-claro text-center font-semibold text-base">
+                        Crear cuenta
+                    </Text>
+                  )}
+            </TouchableOpacity>
 
-			<View className="flex-row justify-center mt-4 pb-10">
-				<Text className="text-gray-500">¿Ya tienes cuenta? </Text>
-				<TouchableOpacity onPress={() => navigation.navigate("Login")}>
-					<Text className="text-az-primario font-medium">Inicia sesión</Text>
-				</TouchableOpacity>
-			</View>
-		</ScrollView>
-	</SafeAreaView>
+            <View className="flex-row justify-center mt-4 pb-10">
+                <Text className="text-gray-500">¿Ya tienes cuenta? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                    <Text className="text-az-primario font-medium">Inicia sesión</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    </SafeAreaView>
   );
 }
 
 export default RegisterScreen;
-
-
-
-
-
-
-//ssss
