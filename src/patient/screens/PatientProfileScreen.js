@@ -1,6 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+// 💡 1. Importar el servicio de Auth y la función signOut
+import { signOut } from 'firebase/auth';
+import { auth } from '../../config/firebaseConfig';
 
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
@@ -25,13 +29,24 @@ const InfoRow = ({ icon, label, value, onPressEdit }) => (
 const PatientProfileScreen = ({ navigation }) => {
   const handleEdit = (field) => {
     Alert.alert("Editar", `Abriendo modal para editar: ${field}`);
-    // Lógica real: Abrir un modal o navegar a una pantalla de edición
+  };
+
+  // 💡 2. Función de Logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // El AuthContext detectará esto automáticamente y
+      // el RootNavigator nos enviará al AuthStack (Login).
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      Alert.alert("Error", "No se pudo cerrar la sesión.");
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-fondo-claro">
       
-      {/* 🧭 Encabezado Superior (Header) */}
+      {/* Encabezado Superior (Header) */}
       <View className="flex-row items-center px-4 py-5 bg-az-primario rounded-b-lg shadow-md">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" />
@@ -50,6 +65,22 @@ const PatientProfileScreen = ({ navigation }) => {
           <Text className="text-2xl font-bold text-texto-oscuro mt-3">Viviana López</Text>
           <Text className="text-base text-gray-500">Paciente</Text>
         </View>
+
+        {/* 🩺 --- ¡NUEVA SECCIÓN DE BITÁCORA! --- 🩺 */}
+        <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
+          <TouchableOpacity 
+            className="flex-row items-center justify-between py-2"
+            onPress={() => navigation.navigate('PatientLog')} // <-- NAVEGACIÓN
+          >
+            <View className="flex-row items-center">
+              <Ionicons name="receipt-outline" size={24} color={PRIMARY_COLOR} />
+              <Text className="text-lg font-semibold text-texto-oscuro ml-4">Ver Mi Bitácora Clínica</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+        {/* 🩺 --- FIN DE LA NUEVA SECCIÓN --- 🩺 */}
+
 
         {/* 📍 Sección de Dirección y Contacto */}
         <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
@@ -94,7 +125,7 @@ const PatientProfileScreen = ({ navigation }) => {
         {/* Botón de Cerrar Sesión */}
         <TouchableOpacity 
           className="bg-error-rojo/10 rounded-full py-4 mt-4 mb-10 items-center border border-error-rojo"
-          onPress={() => Alert.alert('Cerrar Sesión', '¿Estás seguro que quieres cerrar sesión?')}
+          onPress={handleLogout} // Conectado a la función de logout
         >
           <Text className="text-error-rojo text-lg font-semibold">Cerrar Sesión</Text>
         </TouchableOpacity>
@@ -111,12 +142,9 @@ const PatientProfileScreen = ({ navigation }) => {
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-            className="items-center" 
-            onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })} // Navega a la pantalla de Chat
-        >
-            <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" /> 
-            <Text className="text-gray-400 text-xs">Mensajes</Text>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })}>
+          <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
+          <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center">
           <Ionicons name="person" size={24} color={PRIMARY_COLOR} />

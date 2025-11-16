@@ -10,7 +10,7 @@ import {
   ScrollView 
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Importamos la función de Login
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'; // Importamos la función de Login
 import { auth } from '../../config/firebaseConfig'; // Importamos el servicio de Auth
 
 // Colores definidos en tu tailwind.config.js

@@ -4,7 +4,9 @@ import PatientHomeScreen from '../screens/PatientHomeScreen';
 import PatientHistoryScreen from '../screens/PatientHistoryScreen';
 import PatientProfileScreen from '../screens/PatientProfileScreen';
 import ChatScreen from '../../shared/screens/ChatScreen';
-// Importa las demás pantallas del paciente aquí (Perfil, Historial, etc.)
+import ProfessionalDetailScreen from '../screens/ProfessionalDetailScreen'
+import BookAppointmentScreen from '../screens/BookAppointmentScreen';
+import PatientLogScreen from '../screens/PatientLogScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +31,19 @@ const AppStack = () => {
         name="Chat"
         component={ChatScreen}
         options={{ headerShown: false }}
+      />
+        <Stack.Screen name="ProfessionalDetail" 
+      component={ProfessionalDetailScreen} 
+      options={{ headerShown: false }} />
+      <Stack.Screen 
+        name="BookAppointment" 
+        component={BookAppointmentScreen} 
+        options={{ headerShown: false }} 
+      />
+        <Stack.Screen 
+        name="PatientLog" 
+        component={PatientLogScreen} 
+        options={{ headerShown: false }} 
       />
     </Stack.Navigator>
     
