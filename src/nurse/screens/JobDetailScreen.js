@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, Activity
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
+import MapView, { Marker } from "react-native-maps";
+
 
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
@@ -136,10 +138,28 @@ const JobDetailScreen = ({ navigation, route }) => {
           </View>
           
           {/* MARCADOR DE MAPA (QUITADO) */}
-          <View className="w-full h-32 bg-gris-acento rounded-lg items-center justify-center mt-2">
-            <Text className="text-gray-500 text-lg">Mapa de Ruta Aquí</Text>
-            <Text className="text-sm text-gray-400">(Funcionalidad omitida)</Text>
-          </View>
+          <View className="w-full h-56 rounded-lg overflow-hidden mt-2">
+  <MapView
+    style={{ width: "100%", height: "100%" }}
+    initialRegion={{
+      latitude: appointment.location?.latitude || -33.4489,
+      longitude: appointment.location?.longitude || -70.6693,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    }}
+  >
+    {appointment.location && (
+      <Marker
+        coordinate={{
+          latitude: appointment.location.latitude,
+          longitude: appointment.location.longitude,
+        }}
+        title="Ubicación del Paciente"
+      />
+    )}
+  </MapView>
+</View>
+
         </DetailSection>
 
         {/* Detalles del Paciente (Datos Reales) */}
