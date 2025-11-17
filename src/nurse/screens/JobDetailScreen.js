@@ -19,7 +19,6 @@ const DetailSection = ({ title, children }) => (
 );
 
 const JobDetailScreen = ({ navigation, route }) => {
-  // 💡 1. Obtenemos el objeto COMPLETO de la cita (usando optional chaining para prevenir el crash)
   const appointment = route.params?.appointment; 
 
   const [loadingAccept, setLoadingAccept] = useState(false);
@@ -48,20 +47,30 @@ const JobDetailScreen = ({ navigation, route }) => {
     }
   };
 
-  // Lógica para RECHAZAR el trabajo
+  // Lógica para RECHAZAR el trabajo (CORREGIDA)
   const handleRejectJob = async () => {
     if (!appointment) return;
-    setLoadingReject(true);
+    // IMPORTANTE: NO llamamos a setLoadingReject(true) aquí. Lo hacemos solo si el usuario confirma.
 
     Alert.alert(
       "Rechazar Solicitud", 
       "¿Estás seguro de que quieres rechazar este servicio? El paciente será notificado.",
       [
-        { text: "Cancelar", style: "cancel", onPress: () => setLoadingReject(false) },
+        // Opción 1: CANCELAR
+        { 
+          text: "Cancelar", 
+          style: "cancel", 
+          // Si el usuario cancela, no hacemos nada con el estado de carga, 
+          // ya que no lo activamos aún. Esto resuelve el problema.
+        },
+        // Opción 2: SÍ, RECHAZAR
         { 
           text: "Sí, Rechazar", 
           style: "destructive",
           onPress: async () => {
+            // Activamos la carga SÓLO si el usuario confirma el rechazo.
+            setLoadingReject(true); 
+
             try {
               const appointmentRef = doc(db, "citas", appointment.id);
               await updateDoc(appointmentRef, {
@@ -74,6 +83,7 @@ const JobDetailScreen = ({ navigation, route }) => {
               console.error("Error al rechazar la cita: ", error);
               Alert.alert("Error", "No se pudo rechazar la cita.");
             } finally {
+              // Desactivamos la carga al finalizar la operación.
               setLoadingReject(false);
             }
           }
@@ -82,7 +92,7 @@ const JobDetailScreen = ({ navigation, route }) => {
     );
   };
 
-  // 💡 2. VALIDACIÓN DE ERROR (SOLUCIONA EL TYPEERROR)
+  // 💡 VALIDACIÓN DE ERROR (PARA EL CASO DE QUE NO SE PASEN LOS PARÁMETROS)
   if (!appointment) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-fondo-claro p-4">
@@ -103,7 +113,7 @@ const JobDetailScreen = ({ navigation, route }) => {
     );
   }
 
-  // 3. Renderizado con datos reales
+  // Renderizado con datos reales
   return (
     <SafeAreaView className="flex-1 bg-fondo-claro">
       
@@ -127,8 +137,8 @@ const JobDetailScreen = ({ navigation, route }) => {
           
           {/* MARCADOR DE MAPA (QUITADO) */}
           <View className="w-full h-32 bg-gris-acento rounded-lg items-center justify-center mt-2">
-             <Text className="text-gray-500 text-lg">Mapa de Ruta Aquí</Text>
-             <Text className="text-sm text-gray-400">(Funcionalidad omitida)</Text>
+            <Text className="text-gray-500 text-lg">Mapa de Ruta Aquí</Text>
+            <Text className="text-sm text-gray-400">(Funcionalidad omitida)</Text>
           </View>
         </DetailSection>
 
@@ -205,7 +215,7 @@ const InfoRow = ({ icon, label, value, onPress }) => (
       </View>
     </View>
     {onPress && (
-        <Ionicons name="chevron-forward-outline" size={24} color="#6B7280" />
+      <Ionicons name="chevron-forward-outline" size={24} color="#6B7280" />
     )}
   </TouchableOpacity>
 );

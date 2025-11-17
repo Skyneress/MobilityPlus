@@ -16,7 +16,7 @@ const NurseHomeScreen = ({ navigation }) => {
   const [requests, setRequests] = useState([]);
   const [loadingToggle, setLoadingToggle] = useState(false);
 
-  // Función para obtener los datos del paciente dado su UID
+  // 💡 1. Función para obtener los datos del paciente dado su UID
   const getPatientData = useCallback(async (patientUid) => {
     try {
       const patientDocRef = doc(db, "users", patientUid);
@@ -61,14 +61,17 @@ const NurseHomeScreen = ({ navigation }) => {
       );
 
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+        // 💡 3. Usamos Promise.all para esperar los datos de los pacientes
         const activeRequestsPromises = querySnapshot.docs.map(async (doc) => {
           const citaData = { id: doc.id, ...doc.data() };
           // Obtener datos del paciente real
           const patientData = await getPatientData(citaData.patientUid);
           return {
             ...citaData,
+            // 💡 Ahora sí se mostrará el nombre y dirección reales
             patientName: patientData ? `${patientData.nombre} ${patientData.apellido}` : 'Paciente Desconocido',
             patientProfilePic: patientData ? patientData.fotoPerfil : null,
+            address: patientData ? patientData.direccion : 'Dirección no disponible',
             patientPhoneNumber: patientData ? patientData.telefono : null, 
           };
         });
@@ -77,7 +80,7 @@ const NurseHomeScreen = ({ navigation }) => {
         setLoading(false);
       }, (error) => {
         console.error("Error al escuchar solicitudes: ", error);
-        // Alert.alert("Error", "No se pudo conectar para recibir solicitudes.");
+        Alert.alert("Error", "No se pudo conectar para recibir solicitudes.");
         setLoading(false);
       });
 
@@ -113,11 +116,9 @@ const NurseHomeScreen = ({ navigation }) => {
     }
   };
 
-  // 💡 --- ¡CAMBIO IMPORTANTE AQUÍ! --- 💡
-  // Esta función ahora pasa el objeto 'cita' COMPLETO
   const handleViewDetails = (cita) => {
     navigation.navigate('JobDetail', { 
-      appointment: cita // Pasamos el objeto completo
+      appointment: cita 
     });
   };
 
@@ -196,20 +197,24 @@ const NurseHomeScreen = ({ navigation }) => {
               key={request.id}
               className="bg-white p-4 rounded-xl shadow-md mb-4 border border-gris-acento/50"
             >
-              {/* Sección superior: Tipo de Servicio y Fecha/Hora (si disponibles) */}
+              {/* Sección superior: Tipo de Servicio y Fecha/Hora */}
               <View className="flex-row justify-between items-center mb-2 pb-2 border-b border-gris-acento/50">
                 <Text className="text-lg font-bold text-texto-oscuro max-w-[70%]">
                   {request.serviceType || "Servicio Desconocido"}
                 </Text>
+                <Text className="text-sm font-semibold text-gray-500">
+                  {request.requestedDate || "Fecha/Hora Pendiente"}
+                </Text>
               </View>
 
-              {/* Sección del Paciente */}
+              {/* Sección del Paciente (Usa datos reales del fetch) */}
               <View className="flex-row items-center mb-3">
                 <Image
                   source={{ uri: request.patientProfilePic || `https://placehold.co/50x50/EBF8FF/3A86FF?text=${request.patientName.charAt(0)}` }}
                   className="w-12 h-12 rounded-full border-2 border-az-primario mr-3"
                 />
                 <View className="flex-1">
+                  {/* 💡 AHORA MUESTRA EL NOMBRE REAL */}
                   <Text className="text-base font-semibold text-texto-oscuro">{request.patientName}</Text>
                   <View className="flex-row items-center mt-1">
                     <Ionicons name="location-outline" size={16} color="#6B7280" />
@@ -228,7 +233,7 @@ const NurseHomeScreen = ({ navigation }) => {
               <View className="flex-row justify-between items-center pt-3 border-t border-gris-acento/50">
                 <TouchableOpacity
                   className="bg-az-primario py-3 flex-1 rounded-full shadow-sm flex-row justify-center items-center"
-                  onPress={() => handleViewDetails(request)} // 💡 ¡CAMBIO AQUÍ!
+                  onPress={() => handleViewDetails(request)}
                 >
                   <Ionicons name="information-circle-outline" size={20} color="#FFFFFF" className="mr-2" />
                   <Text className="text-texto-claro font-bold text-base ml-1">Ver Detalles</Text>
