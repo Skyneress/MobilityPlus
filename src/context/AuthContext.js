@@ -10,18 +10,19 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
+    const [userProfile, setUserProfile] = useState(null); // 💡 ESTADO PARA DATOS
     const [loading, setLoading] = useState(true);
 
-    // Esta función busca el ROL en la colección "users"
-    const fetchUserRole = async (uid) => {
+    // Esta función busca el ROL y el Perfil en la colección "users"
+    const fetchUserData = async (uid) => {
         try {
-            // Usamos la colección "users" que definimos en el Registro
             const userDocRef = doc(db, "users", uid); 
             const userDoc = await getDoc(userDocRef);
             
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                setRole(userData.role); // Asigna el rol ('patient' o 'nurse')
+                setRole(userData.role); // Asigna el rol
+                setUserProfile(userData); // 💡 GUARDA EL PERFIL COMPLETO
             } else {
                 console.warn('Usuario autenticado (Auth) pero sin datos en Firestore (users).');
                 setRole(null); 
@@ -33,32 +34,29 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        // onAuthStateChanged es el "oyente" de Firebase que escucha
-        // los inicios de sesión (signInWithEmailAndPassword) y cierres de sesión.
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                // Usuario logueado
                 setUser(firebaseUser);
-                await fetchUserRole(firebaseUser.uid); // Buscamos su rol
+                await fetchUserData(firebaseUser.uid); // Buscamos rol y perfil
                 setLoading(false);
             } else {
-                // Usuario deslogueado
                 setUser(null);
                 setRole(null);
+                setUserProfile(null); // Limpiamos perfil
                 setLoading(false);
             }
         });
-
-        return () => unsubscribe(); // Limpiar la suscripción
+        return () => unsubscribe(); 
     }, []);
 
     // Objeto de valor del contexto que se pasa a los hijos
     const value = {
         user,
         role,
+        userProfile, // 💡 ¡AÑADIDO! Ahora está disponible en useAuth()
         loading,
         userId: user?.uid,
-        isAuthenticated: !!user, // Booleano simple (true/false)
+        isAuthenticated: !!user, 
     };
 
     return (
@@ -68,5 +66,5 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// Hook personalizado para usar el contexto fácilmente en otros archivos
+// Hook personalizado para usar el contexto
 export const useAuth = () => useContext(AuthContext);

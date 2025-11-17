@@ -46,11 +46,10 @@ const NurseHomeScreen = ({ navigation }) => {
           setIsAvailable(docSnap.data().disponibilidad);
         } else {
           console.warn("No se encontró el perfil del profesional en 'profesionales'");
-          setIsAvailable(false); // Si no hay perfil, asumimos no disponible
+          setIsAvailable(false); 
         }
       } catch (error) {
         console.error("Error al cargar disponibilidad: ", error);
-        // En caso de error, el estado inicial se mantiene o se define como false
       }
 
       // 2. Escuchar solicitudes pendientes (en tiempo real)
@@ -64,13 +63,13 @@ const NurseHomeScreen = ({ navigation }) => {
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
         const activeRequestsPromises = querySnapshot.docs.map(async (doc) => {
           const citaData = { id: doc.id, ...doc.data() };
-          // 💡 Obtener datos del paciente real
+          // Obtener datos del paciente real
           const patientData = await getPatientData(citaData.patientUid);
           return {
             ...citaData,
             patientName: patientData ? `${patientData.nombre} ${patientData.apellido}` : 'Paciente Desconocido',
             patientProfilePic: patientData ? patientData.fotoPerfil : null,
-            patientPhoneNumber: patientData ? patientData.telefono : null, // Para el chat
+            patientPhoneNumber: patientData ? patientData.telefono : null, 
           };
         });
         const requestsWithPatientData = await Promise.all(activeRequestsPromises);
@@ -78,7 +77,7 @@ const NurseHomeScreen = ({ navigation }) => {
         setLoading(false);
       }, (error) => {
         console.error("Error al escuchar solicitudes: ", error);
-        Alert.alert("Error", "No se pudo conectar para recibir solicitudes.");
+        // Alert.alert("Error", "No se pudo conectar para recibir solicitudes.");
         setLoading(false);
       });
 
@@ -94,7 +93,7 @@ const NurseHomeScreen = ({ navigation }) => {
 
     const newState = !isAvailable;
     setLoadingToggle(true);
-    setIsAvailable(newState); // Optimistic UI update
+    setIsAvailable(newState); 
 
     try {
       const profRef = doc(db, "profesionales", user.uid);
@@ -108,32 +107,28 @@ const NurseHomeScreen = ({ navigation }) => {
     } catch (error) {
       console.error("Error al actualizar disponibilidad: ", error);
       Alert.alert("Error", "No se pudo cambiar tu estado. Intenta de nuevo.");
-      setIsAvailable(!newState); // Revert UI update on error
+      setIsAvailable(!newState); 
     } finally {
       setLoadingToggle(false);
     }
   };
 
-  const handleAcceptJob = (cita) => {
-    navigation.navigate('JobDetail', {
-      appointmentId: cita.id,
-      patientUid: cita.patientUid,
-      patientName: cita.patientName,
-      serviceType: cita.serviceType,
-      address: cita.address,
-      scheduledDate: cita.scheduledDate, // Asegúrate de pasar la fecha si la necesitas
-      scheduledTime: cita.scheduledTime, // Asegúrate de pasar la hora si la necesitas
+  // 💡 --- ¡CAMBIO IMPORTANTE AQUÍ! --- 💡
+  // Esta función ahora pasa el objeto 'cita' COMPLETO
+  const handleViewDetails = (cita) => {
+    navigation.navigate('JobDetail', { 
+      appointment: cita // Pasamos el objeto completo
     });
   };
 
-  // 💡 Función para manejar el chat con el paciente
   const handleChat = (request) => {
     if (request.patientUid && request.patientName) {
       navigation.navigate('Chat', {
-        contactUid: request.patientUid,
-        contactName: request.patientName,
-        contactRole: 'patient',
-        // Puedes añadir más info si la necesitas en la pantalla de chat
+        chatWithUser: {
+          id: request.patientUid,
+          name: request.patientName,
+          role: 'patient',
+        }
       });
     } else {
       Alert.alert("Error", "No se pudo iniciar el chat. Datos del paciente incompletos.");
@@ -206,14 +201,6 @@ const NurseHomeScreen = ({ navigation }) => {
                 <Text className="text-lg font-bold text-texto-oscuro max-w-[70%]">
                   {request.serviceType || "Servicio Desconocido"}
                 </Text>
-                {request.scheduledDate && request.scheduledTime && (
-                  <View className="flex-row items-center bg-az-primario/10 px-3 py-1 rounded-full">
-                    <Ionicons name="calendar-outline" size={14} color={PRIMARY_COLOR} />
-                    <Text className="text-sm text-az-primario ml-1">
-                      {request.scheduledDate} {request.scheduledTime}
-                    </Text>
-                  </View>
-                )}
               </View>
 
               {/* Sección del Paciente */}
@@ -231,7 +218,7 @@ const NurseHomeScreen = ({ navigation }) => {
                     </Text>
                   </View>
                 </View>
-                {/* 💡 Botón de Chat */}
+                {/* Botón de Chat */}
                 <TouchableOpacity onPress={() => handleChat(request)} className="ml-3 p-2 bg-fondo-claro rounded-full border border-gris-acento">
                   <Ionicons name="chatbubbles-outline" size={24} color={PRIMARY_COLOR} />
                 </TouchableOpacity>
@@ -241,16 +228,11 @@ const NurseHomeScreen = ({ navigation }) => {
               <View className="flex-row justify-between items-center pt-3 border-t border-gris-acento/50">
                 <TouchableOpacity
                   className="bg-az-primario py-3 flex-1 rounded-full shadow-sm flex-row justify-center items-center"
-                  onPress={() => handleAcceptJob(request)}
+                  onPress={() => handleViewDetails(request)} // 💡 ¡CAMBIO AQUÍ!
                 >
                   <Ionicons name="information-circle-outline" size={20} color="#FFFFFF" className="mr-2" />
                   <Text className="text-texto-claro font-bold text-base ml-1">Ver Detalles</Text>
                 </TouchableOpacity>
-                {/* Puedes añadir un botón de "Rechazar" aquí si lo deseas */}
-                {/* <TouchableOpacity className="bg-error-rojo/10 py-3 ml-3 flex-1 rounded-full border border-error-rojo flex-row justify-center items-center">
-                  <Ionicons name="close-circle-outline" size={20} color="#DC2626" className="mr-2" />
-                  <Text className="text-error-rojo font-bold text-base ml-1">Rechazar</Text>
-                </TouchableOpacity> */}
               </View>
             </View>
           ))

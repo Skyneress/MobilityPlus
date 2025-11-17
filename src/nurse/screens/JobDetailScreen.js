@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
-import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Importamos FontAwesome para las estrellas
-// 💡 1. Importar funciones de Firestore
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
-// 💡 Añadimos el color de éxito para el nuevo botón
-const SUCCESS_COLOR = "#4CAF50"; 
+const GRAY_ACCENT = "#E5E7EB";
+const ERROR_COLOR = "#EF4444"; 
+const SUCCESS_COLOR = "#4CAF50";
 
 // Componente para una sección de información
 const DetailSection = ({ title, children }) => (
@@ -20,66 +19,62 @@ const DetailSection = ({ title, children }) => (
 );
 
 const JobDetailScreen = ({ navigation, route }) => {
-  // 💡 2. Obtener los parámetros de la ruta
-  const { appointmentId, patientUid } = route.params;
+  // 💡 1. Obtenemos el objeto COMPLETO de la cita (usando optional chaining para prevenir el crash)
+  const appointment = route.params?.appointment; 
 
-  const [loading, setLoading] = useState(true);
-  const [appointment, setAppointment] = useState(null); // Estado para la cita real
+  const [loadingAccept, setLoadingAccept] = useState(false);
+  const [loadingReject, setLoadingReject] = useState(false);
 
-  // 💡 3. useEffect para cargar los datos de la cita
-  useEffect(() => {
-    if (!appointmentId) return;
-
-    const fetchAppointment = async () => {
-      setLoading(true);
-      try {
-        const docRef = doc(db, "citas", appointmentId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setAppointment({ id: docSnap.id, ...docSnap.data() });
-        } else {
-          Alert.alert("Error", "No se encontró la solicitud de cita.");
-          navigation.goBack();
-        }
-      } catch (error) {
-        console.error("Error al cargar la cita: ", error);
-        Alert.alert("Error", "No se pudo cargar la información de la cita.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAppointment();
-  }, [appointmentId]); // Se ejecuta cada vez que el ID de la cita cambia
-
-  // 💡 4. Lógica para Aceptar el trabajo e Iniciar el viaje
-  const handleStartTrip = async () => {
+  // Lógica para Aceptar el trabajo
+  const handleAcceptJob = async () => {
     if (!appointment) return;
+    setLoadingAccept(true);
+
+    try {
+      const appointmentRef = doc(db, "citas", appointment.id);
+      await updateDoc(appointmentRef, {
+        status: 'aceptada', // <-- CAMBIO DE ESTADO
+        updatedAt: serverTimestamp()
+      });
+      
+      Alert.alert('Cita Aceptada', 'El paciente será notificado. Ahora comienza tu viaje.');
+      navigation.navigate('NurseHome'); // Volvemos al panel
+      
+    } catch (error) {
+      console.error("Error al aceptar la cita: ", error);
+      Alert.alert("Error", "No se pudo actualizar el estado de la cita.");
+    } finally {
+      setLoadingAccept(false);
+    }
+  };
+
+  // Lógica para RECHAZAR el trabajo
+  const handleRejectJob = async () => {
+    if (!appointment) return;
+    setLoadingReject(true);
 
     Alert.alert(
-      "Confirmar Inicio", 
-      `¿Confirmas que aceptas el servicio para ${appointment.patientName} y comienzas el viaje?`,
+      "Rechazar Solicitud", 
+      "¿Estás seguro de que quieres rechazar este servicio? El paciente será notificado.",
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: "Cancelar", style: "cancel", onPress: () => setLoadingReject(false) },
         { 
-          text: "Confirmar e Iniciar", 
+          text: "Sí, Rechazar", 
+          style: "destructive",
           onPress: async () => {
             try {
-              // Actualizamos el estado de la cita a 'aceptada'
               const appointmentRef = doc(db, "citas", appointment.id);
               await updateDoc(appointmentRef, {
-                status: 'aceptada',
+                status: 'rechazada', // <-- CAMBIO DE ESTADO
                 updatedAt: serverTimestamp()
               });
-              
-              Alert.alert('Viaje Iniciado', 'La cita ha sido aceptada. El paciente será notificado.');
-              // Actualizamos el estado local para que el botón cambie
-              setAppointment(prev => ({ ...prev, status: 'aceptada' })); 
-              
+              Alert.alert('Solicitud Rechazada', 'El paciente ha sido notificado.');
+              navigation.navigate('NurseHome'); // Vuelve al panel
             } catch (error) {
-              console.error("Error al aceptar la cita: ", error);
-              Alert.alert("Error", "No se pudo actualizar el estado de la cita.");
+              console.error("Error al rechazar la cita: ", error);
+              Alert.alert("Error", "No se pudo rechazar la cita.");
+            } finally {
+              setLoadingReject(false);
             }
           }
         }
@@ -87,29 +82,28 @@ const JobDetailScreen = ({ navigation, route }) => {
     );
   };
 
-  // 💡 5. NUEVA FUNCIÓN: Navegar para completar el trabajo
-  const handleGoToComplete = () => {
-    // Navegamos a la pantalla de bitácora
-    navigation.navigate('CompleteJob', {
-      appointmentId: appointment.id,
-      patientUid: appointment.patientUid,
-      serviceType: appointment.serviceType,
-      patientName: appointment.patientName
-    });
-  };
-
-
-  // 💡 6. Pantalla de carga mientras se buscan los datos
-  if (loading || !appointment) {
+  // 💡 2. VALIDACIÓN DE ERROR (SOLUCIONA EL TYPEERROR)
+  if (!appointment) {
     return (
-      <SafeAreaView className="flex-1 bg-fondo-claro justify-center items-center">
-        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-        <Text className="mt-4 text-texto-oscuro">Cargando detalles de la solicitud...</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-fondo-claro p-4">
+        <Ionicons name="alert-circle-outline" size={40} color={ERROR_COLOR} />
+        <Text className="text-xl font-bold text-texto-oscuro mt-4 text-center">
+          Error: Solicitud no encontrada.
+        </Text>
+        <Text className="text-gray-500 mt-2 text-center">
+          Asegúrate de que la cita se cargó correctamente desde el panel.
+        </Text>
+        <TouchableOpacity 
+          className="bg-az-primario rounded-full py-2 px-4 mt-6"
+          onPress={() => navigation.navigate('NurseHome')}
+        >
+          <Text className="text-texto-claro font-semibold">Volver al Panel</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
-  // 💡 7. Renderizado con datos reales
+  // 3. Renderizado con datos reales
   return (
     <SafeAreaView className="flex-1 bg-fondo-claro">
       
@@ -118,31 +112,34 @@ const JobDetailScreen = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-texto-claro ml-4">Solicitud #{appointment.id.substring(0, 6)}</Text>
+        {/* Usamos optional chaining para asegurar que 'id' exista antes de substring */}
+        <Text className="text-xl font-bold text-texto-claro ml-4">Solicitud #{appointment.id?.substring(0, 6)}</Text>
       </View>
 
       <ScrollView className="flex-1 p-4">
         
-        {/* Ubicación del Servicio */}
+        {/* Ubicación del Servicio (sin Mapa - Texto) */}
         <DetailSection title="Ubicación del Servicio">
           <View className="flex-row items-center mb-2">
             <Ionicons name="location-outline" size={20} color={TEXT_DARK} />
             <Text className="text-base text-texto-oscuro ml-2 font-medium">{appointment.address}</Text>
           </View>
           
+          {/* MARCADOR DE MAPA (QUITADO) */}
           <View className="w-full h-32 bg-gris-acento rounded-lg items-center justify-center mt-2">
              <Text className="text-gray-500 text-lg">Mapa de Ruta Aquí</Text>
+             <Text className="text-sm text-gray-400">(Funcionalidad omitida)</Text>
           </View>
         </DetailSection>
 
-        {/* Detalles del Paciente */}
+        {/* Detalles del Paciente (Datos Reales) */}
         <DetailSection title="Detalles del Paciente">
           <InfoRow icon="person-outline" label="Nombre" value={appointment.patientName} />
-          {/* <InfoRow icon="call-outline" label="Contacto" value={appointment.phone} onPress={() => Alert.alert("Llamar", `Llamando a ${appointment.patientName}`)} /> */}
+          <InfoRow icon="call-outline" label="Contacto" value={appointment.patientPhoneNumber || "No disponible"} />
           <InfoRow icon="cash-outline" label="Tarifa Estimada" value={`$${appointment.price} CLP`} />
         </DetailSection>
         
-        {/* Detalles del Servicio */}
+        {/* Detalles del Servicio (Datos Reales) */}
         <DetailSection title="Detalles del Servicio">
           <InfoRow icon="bandage-outline" label="Tipo de Servicio" value={appointment.serviceType} />
           <InfoRow icon="time-outline" label="Hora Programada" value={appointment.requestedDate} />
@@ -157,54 +154,43 @@ const JobDetailScreen = ({ navigation, route }) => {
         
       </ScrollView>
 
-      {/* 💡 8. BOTÓN DE ACCIÓN FLOTANTE (Lógica actualizada) */}
+      {/* Botones de Acción Flotantes (Aceptar y Rechazar) */}
       <View className="absolute bottom-0 w-full p-4 bg-white border-t border-gris-acento shadow-xl">
-        
-        {/* Si el status es 'pendiente', mostramos el botón de Aceptar */}
-        {appointment.status === 'pendiente' && (
+        <View className="flex-row justify-between space-x-3">
+          
+          {/* Botón RECHAZAR */}
           <TouchableOpacity
-            className="rounded-full py-4 shadow-lg items-center bg-az-primario"
-            onPress={handleStartTrip}
+            className="bg-error-rojo/10 rounded-full py-4 flex-1 items-center border border-error-rojo"
+            onPress={handleRejectJob}
+            disabled={loadingReject || loadingAccept}
           >
-            <Text className="text-texto-claro text-lg font-bold">
-              <Ionicons name="navigate-circle-outline" size={20} color="#FFFFFF" /> 
-              Aceptar e Iniciar Viaje
-            </Text>
+            {loadingReject ? (
+              <ActivityIndicator color={ERROR_COLOR} />
+            ) : (
+              <Text className="text-error-rojo text-lg font-bold">Rechazar</Text>
+            )}
           </TouchableOpacity>
-        )}
 
-        {/* Si el status es 'aceptada', mostramos los botones de Finalizar y Chat */}
-        {appointment.status === 'aceptada' && (
-          <View className="flex-row justify-between items-center space-x-3">
-            <TouchableOpacity
-              className="bg-gray-200 p-4 rounded-full"
-              onPress={() => navigation.navigate('Chat', { 
-                  contactName: appointment.patientName, 
-                  contactRole: 'Paciente' 
-              })}
-            >
-              <Ionicons name="chatbubbles-outline" size={24} color={TEXT_DARK} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              // Usamos el color de éxito
-              className="bg-exito-verde rounded-full py-4 shadow-lg items-center flex-1"
-              onPress={handleGoToComplete} // <-- Navega a la pantalla de Bitácora
-            >
-              <Text className="text-texto-claro text-lg font-bold">
-                <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" /> 
-                Finalizar Servicio
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {/* Botón ACEPTAR */}
+          <TouchableOpacity
+            className="bg-az-primario rounded-full py-4 flex-1 items-center shadow-lg"
+            onPress={handleAcceptJob}
+            disabled={loadingReject || loadingAccept}
+          >
+            {loadingAccept ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text className="text-texto-claro text-lg font-bold">Aceptar</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
       
     </SafeAreaView>
   );
 };
 
-// Componente auxiliar reutilizado (Corregido para mostrar el Label)
+// Componente auxiliar reutilizado
 const InfoRow = ({ icon, label, value, onPress }) => (
   <TouchableOpacity 
     className="flex-row items-center justify-between py-2"
@@ -214,7 +200,6 @@ const InfoRow = ({ icon, label, value, onPress }) => (
     <View className="flex-row items-center flex-1">
       <Ionicons name={icon} size={20} color="#6B7280" />
       <View className="ml-4">
-        {/* 💡 Corrección: Añadimos el Label aquí */}
         {label && <Text className="text-xs text-gray-500">{label}</Text>}
         <Text className="text-base font-medium text-texto-oscuro">{value}</Text>
       </View>
