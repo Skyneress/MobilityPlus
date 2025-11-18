@@ -8,6 +8,7 @@ import NurseEarningsScreen from "../screens/NurseEarningsScreen";
 import ChatScreen from "../../shared/screens/ChatScreen";
 import CompleteJobScreen from '../screens/CompleteJobScreen'; 
 import ChatListScreen from "../../shared/screens/ChatListScreen";
+import ServiceFlowScreen from "../screens/ServiceFlowScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,11 @@ const NurseStack = () => {
         component={ChatListScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="ServiceFlow"
+        component={ServiceFlowScreen}
+        options={{ title: "Flujo de Servicio", headerShown: false }}
+ />
     </Stack.Navigator>
   );
 };
