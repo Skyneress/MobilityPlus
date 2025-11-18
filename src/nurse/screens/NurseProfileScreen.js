@@ -255,7 +255,10 @@ const NurseProfileScreen = ({ navigation }) => {
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Agenda</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Paciente Activo', contactRole: 'Paciente' })}>
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => navigation.navigate('ChatList')}
+        >
           <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>

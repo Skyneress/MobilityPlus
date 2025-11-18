@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, setDoc  } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 import MapView, { Marker } from "react-native-maps";
+import { Platform } from "react-native";
+
 
 
 const PRIMARY_COLOR = "#3A86FF"; 
@@ -26,6 +28,28 @@ const JobDetailScreen = ({ navigation, route }) => {
   const [loadingAccept, setLoadingAccept] = useState(false);
   const [loadingReject, setLoadingReject] = useState(false);
 
+  // 💡 2. Función para crear el ID de chat consistente
+  const getChatRoomId = (uid1, uid2) => {
+    return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+  };
+
+  // 💡 3. Inicializar la Sala de Chat
+  const initializeChat = async () => {
+    const chatRoomId = getChatRoomId(appointment.patientUid, appointment.nurseUid);
+    const chatRoomRef = doc(db, "chats", chatRoomId);
+    
+    // El 'setDoc' con { merge: true } crea el documento si no existe
+    await setDoc(chatRoomRef, {
+      participants: [appointment.patientUid, appointment.nurseUid],
+      participantNames: {
+        [appointment.patientUid]: appointment.patientName,
+        [appointment.nurseUid]: appointment.nurseName, // Nombre del enfermero
+      },
+      lastMessage: "Cita aceptada. ¡Hola!",
+      lastUpdatedAt: serverTimestamp(),
+    }, { merge: true });
+  };
+
   // Lógica para Aceptar el trabajo
   const handleAcceptJob = async () => {
     if (!appointment) return;
@@ -37,9 +61,10 @@ const JobDetailScreen = ({ navigation, route }) => {
         status: 'aceptada', // <-- CAMBIO DE ESTADO
         updatedAt: serverTimestamp()
       });
+      await initializeChat(); 
       
-      Alert.alert('Cita Aceptada', 'El paciente será notificado. Ahora comienza tu viaje.');
-      navigation.navigate('NurseHome'); // Volvemos al panel
+      Alert.alert('Cita Aceptada', 'El paciente será notificado. El chat ya está activo.');
+      navigation.navigate('NurseHome');
       
     } catch (error) {
       console.error("Error al aceptar la cita: ", error);

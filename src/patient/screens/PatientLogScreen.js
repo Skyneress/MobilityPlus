@@ -16,6 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const PRIMARY_COLOR = "#3A86FF"; 
 const TEXT_DARK = "#1F2937";
+const GRAY_ACCENT = "#E5E7EB";
 
 // Componente para una entrada de la bitácora
 const LogEntryCard = ({ log }) => (
@@ -51,10 +52,12 @@ const PatientLogScreen = ({ navigation }) => {
 
       try {
         // Consultamos la sub-colección "bitacora" dentro del documento del usuario
+        // RUTA: /users/{userId}/bitacora/
         const logRef = collection(db, "users", userId, "bitacora");
         // Ordenamos por fecha (asumimos que guardaremos 'createdAt' como Timestamp)
         const q = query(logRef, orderBy("createdAt", "desc")); 
 
+        // Usamos getDocs (una sola vez) ya que la bitácora es historial
         const querySnapshot = await getDocs(q);
         const logList = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -113,7 +116,7 @@ const PatientLogScreen = ({ navigation }) => {
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })}>
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('ChatList')}>
           <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>

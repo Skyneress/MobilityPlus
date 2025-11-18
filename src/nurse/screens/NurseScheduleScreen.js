@@ -164,7 +164,10 @@ const NurseScheduleScreen = ({ navigation }) => {
           <Ionicons name="calendar" size={24} color={PRIMARY_COLOR} />
           <Text className="text-az-primario text-xs font-semibold">Agenda</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center" onPress={() => navigation.navigate('Chat', { contactName: 'Soporte', contactRole: 'Soporte' })}>
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => navigation.navigate('ChatList')}
+        >
           <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>
