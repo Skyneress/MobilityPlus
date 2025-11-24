@@ -6,9 +6,10 @@ import NurseProfileScreen from "../screens/NurseProfileScreen";
 import JobDetailScreen from "../screens/JobDetailScreen";
 import NurseEarningsScreen from "../screens/NurseEarningsScreen";
 import ChatScreen from "../../shared/screens/ChatScreen";
-import CompleteJobScreen from '../screens/CompleteJobScreen'; 
+import CompleteJobScreen from "../screens/CompleteJobScreen";
 import ChatListScreen from "../../shared/screens/ChatListScreen";
 import ServiceFlowScreen from "../screens/ServiceFlowScreen";
+import NursePatientLogScreen from "../screens/NursePatientLogScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -47,11 +48,11 @@ const NurseStack = () => {
         component={ChatScreen}
         options={{ headerShown: false }}
       />
-            {/* 💡 PANTALLA DE FINALIZACIÓN AÑADIDA 💡 */}
-      <Stack.Screen 
-        name="CompleteJob" 
-        component={CompleteJobScreen} 
-        options={{ headerShown: false }} 
+      {/* 💡 PANTALLA DE FINALIZACIÓN AÑADIDA 💡 */}
+      <Stack.Screen
+        name="CompleteJob"
+        component={CompleteJobScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ChatList"
@@ -62,7 +63,12 @@ const NurseStack = () => {
         name="ServiceFlow"
         component={ServiceFlowScreen}
         options={{ title: "Flujo de Servicio", headerShown: false }}
- />
+      />
+      <Stack.Screen
+        name="NursePatientLog" // Nombre clave usado en JobDetailScreen
+        component={NursePatientLogScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
