@@ -222,9 +222,9 @@ const PatientProfileScreen = ({ navigation }) => {
   <View style={{ flex: 1, backgroundColor: '#f0f0f0', paddingTop: insets.top }}>
     
    <View className="flex-row items-center px-4 py-3 bg-az-primario rounded-b-lg shadow-md">
-    <TouchableOpacity onPress={() => navigation.goBack()}>
+{/*     <TouchableOpacity onPress={() => navigation.goBack()}>
      <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" /> 
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     <Text className="text-xl font-bold text-texto-claro ml-4">Mi Perfil</Text>
    </View>
     

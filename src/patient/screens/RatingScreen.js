@@ -3,18 +3,23 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView, // Mantenemos esta en el componente para compatibilidad
+  SafeAreaView,
   ScrollView,
   Alert,
   TextInput,
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { doc, updateDoc, getDoc, runTransaction } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
 import { useAuth } from "../../context/AuthContext";
-// 💡 IMPORTACIÓN CLAVE
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context"; // Importación necesaria
 
 const PRIMARY_COLOR = "#3A86FF";
 const TEXT_DARK = "#1F2937";
@@ -43,7 +48,6 @@ const RatingScreen = ({ navigation, route }) => {
   // 💡 OBTENER LOS INSETS
   const insets = useSafeAreaInsets();
 
-  // Recibimos los IDs de la cita y del profesional
   const { appointmentId, professionalId, professionalName } = route.params;
   const { user } = useAuth();
 
@@ -51,7 +55,7 @@ const RatingScreen = ({ navigation, route }) => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Lógica para enviar la calificación (sin cambios)
+  // Lógica para enviar la calificación
   const handleSubmitReview = async () => {
     if (rating === 0) {
       Alert.alert(
@@ -71,8 +75,8 @@ const RatingScreen = ({ navigation, route }) => {
     setLoading(true);
 
     try {
-      // Usamos una Transacción de Firestore para actualizar la calificación
       const professionalRef = doc(db, "profesionales", professionalId);
+      const appointmentRef = doc(db, "citas", appointmentId); // Referencia a la cita
 
       await runTransaction(db, async (transaction) => {
         const profDoc = await transaction.get(professionalRef);
@@ -80,20 +84,26 @@ const RatingScreen = ({ navigation, route }) => {
           throw new Error("Profesional no encontrado");
         }
 
+        // 1. Calculamos los nuevos valores agregados
         const data = profDoc.data();
         const oldRatingTotal = (data.calificacion || 0) * (data.reviews || 0);
         const oldReviews = data.reviews || 0;
-
         const newReviews = oldReviews + 1;
         const newRating = (oldRatingTotal + rating) / newReviews;
 
+        // 2. Actualizamos el documento del profesional (rating promedio y conteo)
         transaction.update(professionalRef, {
           calificacion: newRating,
           reviews: newReviews,
         });
 
-        const appointmentRef = doc(db, "citas", appointmentId);
-        transaction.update(appointmentRef, { status: "calificada" });
+        // 🚨 CORRECCIÓN CLAVE: Actualizamos la cita con el estado y los detalles de la reseña
+        transaction.update(appointmentRef, {
+          status: "calificada",
+          reviewRating: rating, // 💡 GUARDAMOS LA CALIFICACIÓN ESPECÍFICA
+          reviewComment: comment.trim(), // 💡 GUARDAMOS EL TEXTO DEL COMENTARIO
+          reviewDate: serverTimestamp(), // 💡 GUARDAMOS LA FECHA DE RESEÑA
+        });
       });
 
       setLoading(false);
@@ -136,6 +146,7 @@ const RatingScreen = ({ navigation, route }) => {
             {professionalName}
           </Text>
         </View>
+
         {/* 1. Selección de Estrellas */}
         <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
           <Text className="text-lg font-bold text-az-primario mb-1 text-center">
@@ -143,6 +154,7 @@ const RatingScreen = ({ navigation, route }) => {
           </Text>
           <StarRating rating={rating} setRating={setRating} />
         </View>
+
         {/* 2. Comentario */}
         <View className="bg-white p-4 rounded-xl shadow-md mb-6 border border-gris-acento">
           <Text className="text-lg font-bold text-az-primario mb-3">
@@ -158,8 +170,8 @@ const RatingScreen = ({ navigation, route }) => {
             onChangeText={setComment}
           />
         </View>
+
         <View style={{ height: 100 }} />
-        {/* Espacio extra para que el botón flotante no tape el contenido */}
       </ScrollView>
 
       {/* Botón de Acción Flotante */}

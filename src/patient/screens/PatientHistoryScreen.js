@@ -185,9 +185,9 @@ const PatientHistoryScreen = ({ navigation }) => {
       
       {/* 1. HEADER */}
       <View className="flex-row items-center px-4 py-3 bg-az-primario rounded-b-lg shadow-md">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+{/*         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text className="text-xl font-bold text-texto-claro ml-4">Mis Citas y Historial</Text>
       </View>
 

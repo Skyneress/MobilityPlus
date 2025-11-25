@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView, // Eliminaremos SafeAreaView de la raíz
+  SafeAreaView,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -27,13 +27,12 @@ const DetailSection = ({ title, children }) => (
   <View className="bg-white p-4 rounded-xl shadow-md mb-4 border border-gris-acento">
       
     <Text className="text-lg font-bold text-az-primario mb-3">{title}</Text> 
-     {children}
+    {children}
   </View>
 );
 
 const JobDetailScreen = ({ navigation, route }) => {
   const appointment = route.params?.appointment;
-  // 💡 OBTENER LOS INSETS
   const insets = useSafeAreaInsets();
 
   const [loadingAccept, setLoadingAccept] = useState(false);
@@ -94,11 +93,7 @@ const JobDetailScreen = ({ navigation, route }) => {
       "Rechazar Solicitud",
       "¿Estás seguro de que quieres rechazar este servicio? El paciente será notificado.",
       [
-        // Opción 1: CANCELAR
-        {
-          text: "Cancelar",
-          style: "cancel",
-        }, // Opción 2: SÍ, RECHAZAR
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Sí, Rechazar",
           style: "destructive",
@@ -184,8 +179,6 @@ const JobDetailScreen = ({ navigation, route }) => {
            
         </TouchableOpacity>
                
-        {/* Usamos optional chaining para asegurar que 'id' exista antes de substring */}
-           
         <Text className="text-xl font-bold text-texto-claro ml-4">
                Solicitud #{appointment.id?.substring(0, 6)}   
         </Text>
@@ -291,11 +284,12 @@ const JobDetailScreen = ({ navigation, route }) => {
               
           <Text className="text-sm text-gray-600 border border-gris-acento p-3 rounded-lg bg-fondo-claro">
                   {appointment.notes || "Sin notas adicionales."}    
-             
+              
           </Text>
              
         </DetailSection>
-            <View className="h-24" />  
+        {/* 🚨 ESPACIADOR CRÍTICO: Debe ser del tamaño del botón flotante para evitar solapamiento */}
+        <View style={{ height: 100 }} />  
       </ScrollView>
          {/* Botones de Acción Flotantes (Aceptar y Rechazar) */}  
       <View
@@ -304,7 +298,7 @@ const JobDetailScreen = ({ navigation, route }) => {
       >
            
         <View className="flex-row justify-between space-x-3">
-                    
+                   
           <TouchableOpacity
             className="bg-error-rojo/10 rounded-full py-4 flex-1 items-center border border-error-rojo"
             onPress={handleRejectJob}
@@ -340,7 +334,7 @@ const JobDetailScreen = ({ navigation, route }) => {
         </View>
           
       </View>
-          
+       
     </View>
   );
 };
@@ -352,23 +346,23 @@ const InfoRow = ({ icon, label, value, onPress }) => (
     onPress={onPress}
     disabled={!onPress}
   >
-        
+     
     <View className="flex-row items-center flex-1">
          <Ionicons name={icon} size={20} color="#6B7280" />    
       <View className="ml-4">
-                 
+           
         {label && <Text className="text-xs text-gray-500">{label}</Text>}   
          
         <Text className="text-base font-medium text-texto-oscuro">{value}</Text>
-               
+          
       </View>
-           
+       
     </View>
-        
+     
     {onPress && (
       <Ionicons name="chevron-forward-outline" size={24} color="#6B7280" />
     )}
-      
+    
   </TouchableOpacity>
 );
 
