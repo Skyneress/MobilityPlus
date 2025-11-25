@@ -19,6 +19,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
 import { useAuth } from "../../context/AuthContext";
+// 💡 IMPORTACIÓN CLAVE: Debes tener este hook
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRIMARY_COLOR = "#3A86FF";
 const TEXT_DARK = "#1F2937";
@@ -98,9 +100,12 @@ const AppointmentCard = ({ appointment, onPressDetail }) => {
 // --- Componente Principal de la Agenda ---
 const NurseScheduleScreen = ({ navigation }) => {
   const { user } = useAuth(); // Obtenemos el enfermero logueado
+  // 💡 OBTENER LOS INSETS
+  const insets = useSafeAreaInsets();
+
   const [loading, setLoading] = useState(true);
   const [activeAppointments, setActiveAppointments] = useState([]); // Citas Aceptadas, En Camino, En Proceso
-  const [completedAppointments, setCompletedAppointments] = useState([]); // 💡 FUNCIÓN MODIFICADA para manejar la navegación a la Bitácora
+  const [completedAppointments, setCompletedAppointments] = useState([]);
 
   const handleAppointmentClick = (appointment) => {
     if (["aceptada", "en_camino", "en_proceso"].includes(appointment.status)) {
@@ -124,8 +129,9 @@ const NurseScheduleScreen = ({ navigation }) => {
     } else {
       Alert.alert("Estado Desconocido", `Estado: ${appointment.status}`);
     }
-  }; // 💡 2. useEffect para escuchar las citas en tiempo real (ACTUALIZADO - sin cambios en la lógica de fetch)
+  };
 
+  // 💡 2. useEffect para escuchar las citas en tiempo real (sin cambios)
   useEffect(() => {
     if (!user) return;
 
@@ -180,22 +186,24 @@ const NurseScheduleScreen = ({ navigation }) => {
   }, [user]);
 
   return (
-    <SafeAreaView className="flex-1 bg-fondo-claro">
+    <View
+      style={{ flex: 1, backgroundColor: "#f0f0f0", paddingTop: insets.top }}
+    >
       {/* Encabezado */}
-      <View className="flex-row justify-between items-center px-4 py-5 bg-az-primario rounded-b-lg shadow-md">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View className="flex-row justify-between items-center px-4 py-3 bg-az-primario rounded-b-lg shadow-md">
+    {/*     <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={28} color="#FFFFFF" />
         </TouchableOpacity>
-
+ */}
         <Text className="text-xl font-bold text-texto-claro">
           Mi Agenda de Citas
         </Text>
 
-        <TouchableOpacity
+{/*         <TouchableOpacity
           onPress={() => Alert.alert("Filtro", "Aplicando filtro de citas")}
         >
           <Ionicons name="filter-outline" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <ScrollView className="flex-1 p-4">
@@ -243,7 +251,10 @@ const NurseScheduleScreen = ({ navigation }) => {
         )}
       </ScrollView>
       {/* Barra de Navegación Inferior (Tab Bar) */}
-      <View className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl">
+      <View
+        className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl"
+        style={{ paddingBottom: insets.bottom }} // 💡 APLICAMOS EL INSET INFERIOR
+      >
         <TouchableOpacity
           className="items-center"
           onPress={() => navigation.navigate("NurseHome")}
@@ -277,7 +288,7 @@ const NurseScheduleScreen = ({ navigation }) => {
           <Text className="text-gray-400 text-xs">Perfil</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
