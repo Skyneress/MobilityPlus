@@ -132,9 +132,7 @@ const LoginScreen = ({ navigation }) => {
 
             {/* Links inferiores */}
             <View className="items-center mt-6">
-              <TouchableOpacity onPress={() => Alert.alert('Recuperar', 'Implementar flujo de recuperación de contraseña.')}>
-                <Text className="text-az-primario">¿Olvidaste tu contraseña?</Text>
-              </TouchableOpacity>
+
             </View>
 
             <View className="flex-row justify-center mt-4">
