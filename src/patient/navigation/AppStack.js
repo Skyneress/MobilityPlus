@@ -9,6 +9,8 @@ import BookAppointmentScreen from '../screens/BookAppointmentScreen';
 import PatientLogScreen from '../screens/PatientLogScreen';
 import RatingScreen from '../screens/RatingScreen';
 import ChatListScreen from '../../shared/screens/ChatListScreen';
+import PaymentScreen from '../screens/PaymentScreen';
+import NoPendingPaymentsScreen from '../screens/NoPendingPaymentsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +59,17 @@ const AppStack = () => {
         component={ChatListScreen}
         options={{ headerShown: false }}
       />
+        <Stack.Screen 
+        name="Payment" 
+        component={PaymentScreen} 
+        options={{ headerShown: false, presentation: 'modal' }} 
+      />
+        <Stack.Screen 
+        name="NoPendingPayments" 
+        component={NoPendingPaymentsScreen} 
+        options={{ headerShown: false, presentation: 'modal' }} 
+      />
+
     </Stack.Navigator>
     
   );

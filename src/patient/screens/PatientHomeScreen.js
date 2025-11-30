@@ -12,7 +12,7 @@ import {
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuth } from "../../context/AuthContext"; // 💡 Asegúrate de importar useAuth
+import { useAuth } from "../../context/AuthContext";
 
 import {
   collection,
@@ -24,12 +24,12 @@ import {
 import { db } from "../../config/firebaseConfig";
 
 const PRIMARY_COLOR = "#3A86FF";
-// Asumiendo que az-primario, texto-claro, gris-acento, etc., son clases definidas.
 
 const PatientHomeScreen = ({ navigation }) => {
-  // 💡 OBTENER LAS ZONAS SEGURAS DEL DISPOSITIVO
-  const insets = useSafeAreaInsets(); // 💡 OBTENER PERFIL PARA EL SALUDO
-  const { userProfile } = useAuth();
+  const insets = useSafeAreaInsets();
+  // 💡 Necesitamos 'user' para el ID y 'userProfile' para el nombre
+  const { userProfile, user } = useAuth(); 
+  
   const patientName =
     userProfile?.nombre || userProfile?.apellido
       ? `${userProfile.nombre || ""} ${userProfile.apellido || ""}`.trim()
@@ -42,6 +42,38 @@ const PatientHomeScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // 1. ESTADO PARA EL PAGO PENDIENTE
+  const [paymentPending, setPaymentPending] = useState(null);
+
+  // ---------------------------------------------------------
+  // 2. LISTENER DE PAGOS PENDIENTES (NUEVO)
+  // Escucha si hay alguna cita en estado 'aceptada' para este usuario
+  // ---------------------------------------------------------
+  useEffect(() => {
+    if (!user) return;
+
+    const qPayment = query(
+      collection(db, "citas"),
+      where("patientUid", "==", user.uid), // Filtramos por el usuario actual
+      where("status", "==", "aceptada")    // Solo las que el enfermero aprobó
+    );
+
+    const unsubscribePayment = onSnapshot(qPayment, (snapshot) => {
+      if (!snapshot.empty) {
+        // Tomamos la primera cita pendiente para pagar
+        const cita = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+        setPaymentPending(cita);
+      } else {
+        setPaymentPending(null);
+      }
+    });
+
+    return () => unsubscribePayment();
+  }, [user]);
+
+  // ---------------------------------------------------------
+  // CARGA DE CATEGORÍAS (Sin cambios)
+  // ---------------------------------------------------------
   useEffect(() => {
     setLoadingCategories(true);
     const categoriesRef = collection(db, "Especialidades");
@@ -57,14 +89,16 @@ const PatientHomeScreen = ({ navigation }) => {
         setLoadingCategories(false);
       },
       (error) => {
-        console.error("Error al cargar categorías: ", error);
-        Alert.alert("Error", "No se pudo cargar la lista de especialidades.");
+        console.error("Error categorías: ", error);
         setLoadingCategories(false);
       }
     );
     return unsubscribe;
   }, []);
 
+  // ---------------------------------------------------------
+  // CARGA DE PROFESIONALES (Sin cambios)
+  // ---------------------------------------------------------
   useEffect(() => {
     setLoadingProfessionals(true);
     try {
@@ -92,21 +126,15 @@ const PatientHomeScreen = ({ navigation }) => {
           setLoadingProfessionals(false);
         },
         (error) => {
-          console.error(
-            "Error al cargar profesionales (revisar índice): ",
-            error
-          );
+          console.error("Error profesionales: ", error);
           setLoadingProfessionals(false);
         }
       );
-
       return () => unsubscribe();
     } catch (error) {
-      console.error("Error al construir la consulta: ", error);
       setLoadingProfessionals(false);
     }
-    return () => {};
-  }, [selectedCategory]); // 💡 LÓGICA DE FILTRADO FUNCIONAL
+  }, [selectedCategory]);
 
   const filteredProfessionals = professionals.filter(
     (prof) =>
@@ -115,9 +143,21 @@ const PatientHomeScreen = ({ navigation }) => {
       prof.especialidadNombre?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // 3. MANEJADOR DEL BOTÓN DE PAGO (ACTUALIZADO)
+  const handlePaymentPress = () => {
+    if (paymentPending) {
+      // Caso A: Hay deuda -> Vamos a pagar
+      navigation.navigate("Payment", { appointment: paymentPending });
+    } else {
+      // Caso B: No hay deuda -> Pantalla bonita de "Estás al día"
+      navigation.navigate("NoPendingPayments"); 
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
-      {/* 2. HEADER */}
+      
+      {/* ---------------- HEADER MODIFICADO ---------------- */}
       <View
         className="flex-row justify-between items-center px-4 py-3 bg-az-primario/90 rounded-b-2xl shadow-md"
         style={{ paddingTop: insets.top, paddingBottom: 15 }}
@@ -130,17 +170,27 @@ const PatientHomeScreen = ({ navigation }) => {
           Mobility PLUS
         </Text>
 
+        {/* BOTÓN FIJO DE PAGOS */}
         <TouchableOpacity
-          onPress={() => Alert.alert("Menú", "Abriendo el menú lateral")}
+          onPress={handlePaymentPress}
+          className="relative p-1" // relative para posicionar el badge
         >
-          <Ionicons name="menu" size={30} color="#FFFFFF" />
+          <Ionicons name="card-outline" size={28} color="#FFFFFF" />
+          
+          {/* BADGE (PUNTITO ROJO) - Solo si paymentPending existe */}
+          {paymentPending && (
+            <View className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-az-primario z-10" />
+          )}
         </TouchableOpacity>
       </View>
-      {/* 3. SCROLLVIEW: Contenido Principal */}
+      {/* --------------------------------------------------- */}
+
       <ScrollView
         className="flex-1 p-4 z-10"
         style={{ backgroundColor: "#f0f0f0" }}
       >
+        {/* ... (El resto del contenido se mantiene IDÉNTICO) ... */}
+        
         <View className="bg-white p-6 rounded-2xl shadow-lg mb-6 -mt-8">
           <Text className="text-3xl font-bold text-texto-oscuro mb-2">
             Hola
@@ -151,15 +201,8 @@ const PatientHomeScreen = ({ navigation }) => {
             ¿Buscas un profesional?
           </Text>
 
-          {/* Campo de Búsqueda y Categorías */}
           <View className="flex-row items-center w-full border border-gris-acento rounded-full px-5 py-3 text-texto-oscuro bg-fondo-claro shadow-sm">
-            <Ionicons
-              name="search"
-              size={20}
-              color="#9ca3af"
-              className="mr-3"
-            />
-
+            <Ionicons name="search" size={20} color="#9ca3af" className="mr-3"/>
             <TextInput
               className="flex-1 text-base text-texto-oscuro ml-2"
               placeholder="Buscar un especialista..."
@@ -169,13 +212,8 @@ const PatientHomeScreen = ({ navigation }) => {
             />
           </View>
 
-          {/* Scroll Horizontal de Categorías (sin cambios) */}
-
           <View className="mt-8">
-            <Text className="text-xl font-bold text-texto-oscuro mb-4">
-              Categorías
-            </Text>
-
+            <Text className="text-xl font-bold text-texto-oscuro mb-4">Categorías</Text>
             {loadingCategories ? (
               <ActivityIndicator color={PRIMARY_COLOR} />
             ) : (
@@ -186,9 +224,7 @@ const PatientHomeScreen = ({ navigation }) => {
                     className={`py-2 px-5 rounded-full mr-3 border ${selectedCategory === cat.id ? "bg-az-primario border-az-primario" : "bg-fondo-claro border-gris-acento"}`}
                     onPress={() => setSelectedCategory(cat.id)}
                   >
-                    <Text
-                      className={`font-semibold ${selectedCategory === cat.id ? "text-texto-claro" : "text-texto-oscuro"}`}
-                    >
+                    <Text className={`font-semibold ${selectedCategory === cat.id ? "text-texto-claro" : "text-texto-oscuro"}`}>
                       {cat.nombre}
                     </Text>
                   </TouchableOpacity>
@@ -197,59 +233,31 @@ const PatientHomeScreen = ({ navigation }) => {
             )}
           </View>
 
-          {/* Profesionales Disponibles (Renderizado filtrado) */}
-
-          <Text className="text-xl font-bold text-texto-oscuro mt-8 mb-4">
-            Profesionales Disponibles
-          </Text>
+          <Text className="text-xl font-bold text-texto-oscuro mt-8 mb-4">Profesionales Disponibles</Text>
 
           {loadingProfessionals ? (
-            <ActivityIndicator
-              size="large"
-              color={PRIMARY_COLOR}
-              className="my-10"
-            />
+            <ActivityIndicator size="large" color={PRIMARY_COLOR} className="my-10"/>
           ) : (
             <View className="flex-row flex-wrap justify-between">
               {filteredProfessionals.length === 0 ? (
-                <Text className="text-gray-500 text-center w-full">
-                  No se encontraron profesionales para esta categoría.
-                </Text>
+                <Text className="text-gray-500 text-center w-full">No se encontraron profesionales.</Text>
               ) : (
                 filteredProfessionals.map((prof) => (
                   <TouchableOpacity
                     key={prof.id}
                     className="w-[48%] mb-4 bg-white rounded-lg shadow-md overflow-hidden border border-gris-acento/50"
-                    onPress={() =>
-                      navigation.navigate("ProfessionalDetail", {
-                        professionalId: prof.id,
-                      })
-                    }
+                    onPress={() => navigation.navigate("ProfessionalDetail", { professionalId: prof.id })}
                   >
                     <Image
-                      source={{
-                        uri:
-                          prof.fotoPerfil ||
-                          `https://placehold.co/150x150/EBF8FF/3A86FF?text=${prof.nombre.charAt(0)}`,
-                      }}
+                      source={{ uri: prof.fotoPerfil || `https://placehold.co/150x150/EBF8FF/3A86FF?text=${prof.nombre.charAt(0)}` }}
                       className="w-full h-32 object-cover"
                     />
-
                     <View className="p-3">
-                      <Text className="text-texto-oscuro font-semibold">
-                        {prof.nombre} {prof.apellido}
-                      </Text>
-
-                      <Text className="text-xs text-az-primario">
-                        {prof.especialidadNombre}
-                      </Text>
-
+                      <Text className="text-texto-oscuro font-semibold">{prof.nombre} {prof.apellido}</Text>
+                      <Text className="text-xs text-az-primario">{prof.especialidadNombre}</Text>
                       <View className="flex-row items-center mt-1">
                         <FontAwesome name="star" size={14} color="#FFD700" />
-
-                        <Text className="text-sm text-gray-500 ml-1">
-                          {prof.calificacion || 0}
-                        </Text>
+                        <Text className="text-sm text-gray-500 ml-1">{prof.calificacion || 0}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -259,40 +267,25 @@ const PatientHomeScreen = ({ navigation }) => {
           )}
         </View>
       </ScrollView>
-      {/* 4. BARRA DE NAVEGACIÓN INFERIOR (TAB BAR) */}
+
+      {/* BARRA INFERIOR (Sin cambios) */}
       <View
         className="flex-row justify-around items-center bg-white border-t border-gris-acento pt-2 pb-4 shadow-xl"
         style={{ paddingBottom: insets.bottom }}
       >
-        <TouchableOpacity
-          className="items-center"
-          onPress={() => navigation.navigate("PatientHome")}
-        >
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate("PatientHome")}>
           <Ionicons name="home" size={24} color={PRIMARY_COLOR} />
-
           <Text className="text-az-primario text-xs font-semibold">Home</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          className="items-center"
-          onPress={() => navigation.navigate("PatientHistory")}
-        >
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate("PatientHistory")}>
           <Ionicons name="calendar-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Citas</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          className="items-center"
-          onPress={() => navigation.navigate("ChatList")}
-        >
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate("ChatList")}>
           <Ionicons name="chatbubbles-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Mensajes</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          className="items-center"
-          onPress={() => navigation.navigate("PatientProfile")}
-        >
+        <TouchableOpacity className="items-center" onPress={() => navigation.navigate("PatientProfile")}>
           <Ionicons name="person-outline" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs">Perfil</Text>
         </TouchableOpacity>
