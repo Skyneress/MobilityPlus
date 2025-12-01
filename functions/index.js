@@ -1,18 +1,14 @@
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
-// 1. Importamos el SDK de Mercado Pago
 const {MercadoPagoConfig, Preference} = require("mercadopago");
 
 // 2. Configuración del Cliente
-// Pega aquí tu ACCESS TOKEN de PRUEBA (Sandbox) que obtuviste en el Paso 1.
-// NOTA: En producción, esto debería ir en variables de entorno,
-// pero para el proyecto está bien aquí.
+// Access Token de PRUEBA (Sandbox).
+// NOTA: En producción, usar variables de entorno.
 // eslint-disable-next-line max-len
 const client = new MercadoPagoConfig({accessToken: "APP_USR-2255579792400627-112921-abe22f278d8afdef66417c2d424d4982-3026971474"});
 
-// 3. Definimos la Cloud Function
 exports.createPaymentPreference = onRequest(async (req, res) => {
-  // Habilitar CORS para que tu App pueda llamar a esta función sin bloqueos
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST");
 
@@ -22,40 +18,41 @@ exports.createPaymentPreference = onRequest(async (req, res) => {
   }
 
   try {
-    // Aquí podrías recibir datos dinámicos desde la app (req.body)
-    // Por ejemplo: const { precio, titulo } = req.body;
+    // Desestructuramos en varias líneas para cumplir max-len
+    const {
+      title,
+      price,
+      description,
+      redirectUrl,
+      payerEmail,
+    } = req.body;
 
     const body = {
       items: [
         {
           id: "servicio-medico-01",
-          title: "Atención Médica a Domicilio - Mobility Plus",
-          description: "Visita de enfermería general",
-          // picture_url: 'https://tu-imagen.com/logo.png', // Opcional
+          // Cortamos o ajustamos el título por defecto si es muy largo
+          title: title || "Atención Médica - Mobility Plus",
+          description: description || "Visita de enfermería",
           quantity: 1,
-          currency_id: "CLP", // Pesos Chilenos
-          unit_price: 25000, // El precio a cobrar (puede venir de req.body)
+          currency_id: "CLP",
+          unit_price: Number(price) || 25000,
         },
       ],
-      // 4. IMPORTANTE: Back URLs
-      // Aquí es donde sucede la magia de Expo Go.
-      // Cuando el pago termina, Mercado Pago intenta abrir estos links.
-      // 'mobilityplus' es el 'scheme' que definimos en tu app.json
-      back_urls: {
-        success: "mobilityplus://payment-result",
-        failure: "mobilityplus://payment-result",
-        pending: "mobilityplus://payment-result",
+      payer: {
+        email: payerEmail || "test_user_generico@testuser.com",
       },
-      auto_return: "approved", // Retorna automáticamente a la app si se aprueba
+      back_urls: {
+        success: redirectUrl,
+        failure: redirectUrl,
+        pending: redirectUrl,
+      },
+      auto_return: "approved",
     };
 
-    // 5. Crear la preferencia en Mercado Pago
     const preference = new Preference(client);
     const result = await preference.create({body});
 
-    // 6. Devolver el link de pago a la App
-    // init_point: Link para producción
-    // sandbox_init_point: Link para pruebas (este usaremos)
     res.json({
       id: result.id,
       init_point: result.init_point,
