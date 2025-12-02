@@ -80,19 +80,23 @@ const PaymentScreen = ({ navigation, route }) => {
 
   const confirmPaymentSuccess = async () => {
     try {
-      // Actualizamos estado a "en_camino" para activar el flujo del enfermero
+      // Estado pasa a 'confirmada' (Pago OK, pero falta que llegue el día/hora)
       const appointmentRef = doc(db, "citas", appointment.id);
       await updateDoc(appointmentRef, {
-        status: "en_camino", 
+        status: "confirmada", // 🟢 NUEVO ESTADO
         paymentStatus: "paid",
         paidAt: serverTimestamp()
       });
 
-      Alert.alert("¡Pago Exitoso!", "El profesional ha sido notificado y va en camino.");
+      // Mensaje acorde a la lógica de "Cita Agendada"
+      Alert.alert(
+        "¡Pago Recibido!", 
+        "Tu cita ha sido confirmada. El profesional iniciará el servicio en la fecha y hora acordada."
+      );
       navigation.navigate("PatientHome");
     } catch (error) {
       console.error("Error actualizando Firebase:", error);
-      Alert.alert("Atención", "El pago se realizó, pero hubo un error actualizando la cita. Por favor contáctanos.");
+      Alert.alert("Atención", "El pago se realizó, pero hubo un error actualizando la cita.");
     }
   };
 

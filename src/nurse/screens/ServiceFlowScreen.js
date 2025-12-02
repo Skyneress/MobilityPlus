@@ -25,27 +25,37 @@ const ServiceFlowScreen = ({ navigation, route }) => {
   // 💡 OBTENER LOS INSETS
   const insets = useSafeAreaInsets();
 
-  // Mapeo de estados y el texto del botón
+  // Mapeo de estados y lógica de botones
   const statusMap = {
     aceptada: {
-      nextStatus: "en_camino",
-      buttonText: "Marcar como: En Camino",
-      color: "#FF9800",
+      nextStatus: "none", // 🔒 BLOQUEADO: No puede avanzar manualmente
+      buttonText: "Esperando Pago del Paciente...",
+      color: "#9CA3AF", // Gris deshabilitado
+      disabled: true,   // Propiedad nueva para controlar el botón
+    },
+    confirmada: {
+      nextStatus: "en_camino", // 🟢 AHORA SÍ PUEDE AVANZAR
+      buttonText: "Iniciar Traslado (Ir al domicilio)",
+      color: PRIMARY_COLOR,
+      disabled: false,
     },
     en_camino: {
       nextStatus: "en_proceso",
-      buttonText: "Marcar como: En Servicio",
-      color: PRIMARY_COLOR,
+      buttonText: "Llegué al Domicilio (Iniciar Atención)",
+      color: "#8B5CF6", // Morado para diferenciar
+      disabled: false,
     },
     en_proceso: {
       nextStatus: "finalizar",
       buttonText: "FINALIZAR SERVICIO (Abrir Bitácora)",
       color: SUCCESS_COLOR,
+      disabled: false,
     },
     completada: {
       nextStatus: "none",
       buttonText: "Servicio Finalizado",
       color: GRAY_ACCENT,
+      disabled: true,
     },
   };
 
@@ -162,27 +172,33 @@ const ServiceFlowScreen = ({ navigation, route }) => {
       </ScrollView>
 
       {/* Botón de Acción Principal */}
-      {currentFlow.nextStatus !== "none" && (
-        <View
-          className="absolute bottom-0 w-full p-4 bg-white border-t border-gris-acento shadow-xl"
-          style={{ paddingBottom: insets.bottom }} // 💡 APLICAMOS EL INSET INFERIOR
+      <View
+        className="absolute bottom-0 w-full p-4 bg-white border-t border-gris-acento shadow-xl"
+        style={{ paddingBottom: insets.bottom }}
+      >
+        <TouchableOpacity
+          className="rounded-full py-4 items-center shadow-lg"
+          // 👇 Lógica del onPress condicional
+          onPress={currentFlow.disabled ? () => Alert.alert("Espera", "El paciente debe realizar el pago para iniciar el traslado.") : handleUpdateStatus}
+          // 👇 Deshabilitar visualmente si corresponde
+          style={{ backgroundColor: currentFlow.color, opacity: currentFlow.disabled ? 0.7 : 1 }}
+          activeOpacity={currentFlow.disabled ? 1 : 0.7}
         >
-          <TouchableOpacity
-            className="rounded-full py-4 items-center shadow-lg"
-            onPress={handleUpdateStatus}
-            disabled={loading}
-            style={{ backgroundColor: currentFlow.color }}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <View className="flex-row items-center">
+              {/* Icono de candado si está bloqueado */}
+              {currentFlow.disabled && appointment.status === 'aceptada' && (
+                <Ionicons name="lock-closed-outline" size={20} color="white" style={{ marginRight: 8 }} />
+              )}
               <Text className="text-texto-claro text-lg font-bold">
                 {currentFlow.buttonText}
               </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      )}
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

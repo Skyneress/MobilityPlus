@@ -30,6 +30,11 @@ const AppointmentCard = ({ appointment, onCancel, onReview, onChat, onViewLog })
             statusColorClass = "text-blue-500";
             statusDisplayColor = status === "pendiente" ? WARNING_COLOR : "#3B82F6";
             break;
+        case "confirmada":
+            statusText = "Confirmada - Esperando Fecha";
+            statusColorClass = "text-green-600";
+            statusDisplayColor = "#10B981"; // Un verde bonito
+            break;
         case "en_camino": 
         case "en_proceso": 
             statusText = status === "en_camino" ? "¡Profesional en Camino! 🚗" : "Servicio en Curso 🩺";
@@ -134,7 +139,7 @@ const PatientHistoryScreen = ({ navigation }) => {
     if (!userId) return;
     setLoading(true);
 
-    const qPending = query(collection(db, "citas"), where("patientUid", "==", userId), where("status", "in", ["pendiente", "aceptada", "en_camino", "en_proceso"]), orderBy("createdAt", "desc"));
+    const qPending = query(collection(db, "citas"), where("patientUid", "==", userId), where("status", "in", ["pendiente", "aceptada", "confirmada", "en_camino", "en_proceso"]), orderBy("createdAt", "desc"));
     const qHistory = query(collection(db, "citas"), where("patientUid", "==", userId), where("status", "in", ["completada", "cancelada", "calificada"]), orderBy("createdAt", "desc"));
 
     const unsubscribePending = onSnapshot(qPending, (querySnapshot) => {

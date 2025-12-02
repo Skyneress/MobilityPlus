@@ -40,20 +40,36 @@ const AppointmentCard = ({ appointment, onPressDetail }) => {
   let statusColor, statusBg, statusText, statusIcon;
 
   switch (appointment.status) {
-    case "aceptada":
+    case "aceptada": // Aún no pagan
+      statusColor = "#FF9800"; // Naranja
+      statusBg = "bg-orange-100";
+      statusText = "ESPERANDO PAGO";
+      statusIcon = "time-outline";
+      break;
+
+    case "confirmada": // 🟢 YA PAGARON (Nuevo Caso)
+      statusColor = "#3A86FF"; // Azul Primario
+      statusBg = "bg-blue-100";
+      statusText = "CONFIRMADA (PAGO OK)";
+      statusIcon = "calendar-outline";
+      break;
+
     case "en_camino":
+
     case "en_proceso":
       statusColor = WARNING_COLOR;
       statusBg = "bg-advertencia-naranja/10";
       statusText = appointment.status.toUpperCase().replace("_", " ");
       statusIcon = "time-outline";
       break;
+
     case "completada":
       statusColor = SUCCESS_COLOR;
       statusBg = "bg-exito-verde/10";
       statusText = "COMPLETADA";
       statusIcon = "checkmark-done-outline";
       break;
+      
     default:
       statusColor = TEXT_DARK;
       statusBg = "bg-gray-300/50";
@@ -108,7 +124,7 @@ const NurseScheduleScreen = ({ navigation }) => {
   const [completedAppointments, setCompletedAppointments] = useState([]);
 
   const handleAppointmentClick = (appointment) => {
-    if (["aceptada", "en_camino", "en_proceso"].includes(appointment.status)) {
+    if (["aceptada", "confirmada", "en_camino", "en_proceso"].includes(appointment.status)) {
       // Citas activas van al flujo de servicio
       navigation.navigate("ServiceFlow", {
         appointment: appointment,
@@ -139,7 +155,7 @@ const NurseScheduleScreen = ({ navigation }) => {
     const qActive = query(
       collection(db, "citas"),
       where("nurseUid", "==", user.uid),
-      where("status", "in", ["aceptada", "en_camino", "en_proceso"]),
+      where("status", "in", ["aceptada", "confirmada", "en_camino", "en_proceso"]),
       orderBy("createdAt", "desc")
     ); // Consulta para citas COMPLETADAS
     const qCompleted = query(
