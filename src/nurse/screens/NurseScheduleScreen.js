@@ -50,7 +50,7 @@ const AppointmentCard = ({ appointment, onPressDetail }) => {
     case "confirmada": // 🟢 YA PAGARON (Nuevo Caso)
       statusColor = "#3A86FF"; // Azul Primario
       statusBg = "bg-blue-100";
-      statusText = "CONFIRMADA (PAGO OK)";
+      statusText = "CONFIRMADA";
       statusIcon = "calendar-outline";
       break;
 
@@ -69,7 +69,7 @@ const AppointmentCard = ({ appointment, onPressDetail }) => {
       statusText = "COMPLETADA";
       statusIcon = "checkmark-done-outline";
       break;
-      
+
     default:
       statusColor = TEXT_DARK;
       statusBg = "bg-gray-300/50";

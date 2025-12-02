@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRIMARY_COLOR = "#3A86FF";
 
-// Componente auxiliar para mostrar un servicio con su precio (sin cambios)
+// Componente auxiliar para mostrar un servicio con su precio
 const ServiceDetailRow = ({ name, price }) => {
   const formattedPrice = Number(price)
     ? Number(price).toLocaleString("es-CL")
@@ -39,7 +39,7 @@ const ServiceDetailRow = ({ name, price }) => {
   );
 };
 
-// 💡 NUEVO COMPONENTE: Para mostrar una reseña individual (CORREGIDO PARA TIMESTAMPS)
+// 💡 NUEVO COMPONENTE: Para mostrar una reseña individual (CORREGIDO)
 const ReviewEntry = ({ patientName, rating, comment, date }) => {
   const starIcons = Array(5)
     .fill(0)
@@ -52,11 +52,11 @@ const ReviewEntry = ({ patientName, rating, comment, date }) => {
         style={{ marginRight: 2 }}
       />
     ));
-  let formattedDate = "Fecha desconocida"; // 🚨 CORRECCIÓN: Usamos el método toDate() que existe en el objeto Timestamp de Firestore
+
+  let formattedDate = "Fecha desconocida";
   if (date && typeof date.toDate === "function") {
     formattedDate = date.toDate().toLocaleDateString("es-CL");
   } else if (date) {
-    // Fallback para fechas que son objetos Date nativos
     formattedDate = new Date(date).toLocaleDateString("es-CL");
   }
 
@@ -68,7 +68,8 @@ const ReviewEntry = ({ patientName, rating, comment, date }) => {
         </Text>
         <Text className="text-xs text-gray-400">{formattedDate}</Text>
       </View>
-      <View className="flex-row mb-1"> {starIcons} </View>
+      {/* 🚨 CORRECCIÓN AQUÍ: Eliminados espacios en blanco alrededor de {starIcons} */}
+      <View className="flex-row mb-1">{starIcons}</View>
       <Text className="text-sm text-gray-700 italic">"{comment}"</Text>
     </View>
   );
@@ -80,8 +81,9 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
 
   const [loading, setLoading] = useState(true);
   const [professional, setProfessional] = useState(null);
-  const [reviewsList, setReviewsList] = useState([]); // 💡 FUNCIÓN PARA CARGAR LAS RESEÑAS DETALLADAS
+  const [reviewsList, setReviewsList] = useState([]);
 
+  // 💡 FUNCIÓN PARA CARGAR LAS RESEÑAS DETALLADAS
   const fetchReviews = async (id) => {
     try {
       const reviewsQuery = query(
@@ -98,7 +100,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
             id: doc.id,
             patientName: data.patientName || "Paciente Anónimo",
             rating: data.reviewRating,
-            comment: data.reviewComment, // Usamos la fecha de la cita o la fecha de la reseña, si existen.
+            comment: data.reviewComment,
             date:
               data.reviewDate ||
               data.completionDate ||
@@ -143,7 +145,6 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
   }, [professionalId]);
 
   const handleRequestBooking = () => {
-    // Navegamos a la pantalla de reserva y le pasamos el objeto 'professional'
     navigation.navigate("BookAppointment", { professional: professional });
   };
 
@@ -177,7 +178,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
   }
 
   return (
-    // 💡 CONTENEDOR PRINCIPAL: View con insets superior aplicados
+    // 💡 CONTENEDOR PRINCIPAL
     <View style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
       {/* Header */}
       <View
@@ -194,7 +195,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
       </View>
 
       <ScrollView className="flex-1">
-        {/* Sección de Foto y Nombre (sin cambios) */}
+        {/* Sección de Foto y Nombre */}
         <View className="items-center py-6 bg-white shadow-md -mt-1">
           <Image
             source={{
@@ -223,6 +224,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
             </Text>
           </View>
         </View>
+
         {/* Información Profesional y Servicios */}
         <View className="p-4 mt-4">
           <View className="bg-white p-4 rounded-xl shadow-md border border-gris-acento">
@@ -249,6 +251,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
               label="Registro MINSAL"
               value={professional.numeroRegistroMinsal}
             />
+
             {/* SECCIÓN DE SERVICIOS */}
             <View className="mt-4 pt-3 border-t border-gris-acento/50">
               <Text className="text-lg font-bold text-az-primario mb-3 flex-row items-center">
@@ -282,6 +285,7 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
         </View>
+
         {/* 💡 SECCIÓN DE RESEÑAS DETALLADAS */}
         <View className="p-4 mt-1 mb-20">
           <View className="bg-white p-4 rounded-xl shadow-md border border-gris-acento">
@@ -314,13 +318,15 @@ const ProfessionalDetailScreen = ({ route, navigation }) => {
             )}
           </View>
         </View>
-        {/* 🚨 ESPACIADOR CRÍTICO (Asegura que el botón no tape la última reseña) */}
+
+        {/* 🚨 ESPACIADOR CRÍTICO */}
         <View style={{ height: 100 }} />
       </ScrollView>
+
       {/* 🟢 Botón de Acción Flotante */}
       <View
         className="w-full p-4 bg-white border-t border-gris-acento shadow-xl absolute bottom-0 left-0 right-0"
-        style={{ paddingBottom: insets.bottom }} // 💡 Aplicamos el inset inferior al botón fijo
+        style={{ paddingBottom: insets.bottom }}
       >
         <TouchableOpacity
           className="bg-az-primario rounded-full py-4 shadow-lg items-center"
